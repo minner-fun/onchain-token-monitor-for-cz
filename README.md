@@ -2,7 +2,10 @@
 
 链上取证 + 实时监控案例 · **CZ「The Final Form Bull」**(BSC)
 
-> 这是 [`onchain-token-monitor`](https://github.com/minner-fun/onchain-token-monitor) 针对一个具体 BSC 代币做的**案例实例**:一份完整的链上取证报告 + 一个能直接跑的实时核查工具。
+### 👉 [**实时网页面板 · minner-fun.github.io/onchain-token-monitor-for-cz**](https://minner-fun.github.io/onchain-token-monitor-for-cz/)
+> 冷钱包实时余额、刷量倍数、42 币工厂存活数——打开即看,每 45 秒自动刷新。
+
+> 这是 [`onchain-token-monitor`](https://github.com/minner-fun/onchain-token-monitor) 针对一个具体 BSC 代币做的**案例实例**:一份完整的链上取证报告 + 实时核查工具 + 网页面板 + 24/7 服务器监控。
 > 目标:用不可篡改的链上数据,把「谁在控盘、量是不是真的、风险悬在哪里」讲清楚。
 
 ---
