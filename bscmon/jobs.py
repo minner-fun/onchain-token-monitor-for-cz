@@ -11,6 +11,7 @@ from .notify import emit_event, log
 
 CFG = config.CFG
 _LOGS_CHUNK = 45     # tiny ranges so even strict public nodes accept eth_getLogs (daemon scans small deltas)
+_LOGS_WARNED = False  # log the "getLogs unavailable" degradation once, not every cycle
 
 
 def job_market():
@@ -85,9 +86,12 @@ def job_transfers(baseline=False):
         except Exception as e:
             # getLogs unsupported/limited on this RPC — the balanceOf drop signal still covers
             # the critical "cold wallet moved" case; only destination-naming is lost here.
-            log(f"transfers: eth_getLogs unavailable on this RPC ({str(e)[:50]}); "
-                f"set BSC_RPC to a logs-capable endpoint to name outflow destinations. "
-                f"Balance-drop alerts remain active.")
+            global _LOGS_WARNED
+            if not _LOGS_WARNED:
+                log(f"transfers: eth_getLogs unavailable on this RPC ({str(e)[:50]}); "
+                    f"set BSC_RPC to a logs-capable endpoint to name outflow destinations. "
+                    f"Balance-drop (critical) alerts remain active. Silencing further getLogs notices.")
+                _LOGS_WARNED = True
             return
         if hits is None:
             log(f"transfers: baseline set for {lbl}"); continue
