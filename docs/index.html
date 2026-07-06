@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CZ 链上取证面板 · The Final Form Bull</title>
+<style>
+  :root{
+    --bg:#0b0e13; --card:#141922; --card2:#1a212c; --line:#232c39;
+    --text:#e8eaed; --dim:#8b929e; --green:#3fd17a; --red:#ff5c5c;
+    --orange:#ffa53d; --gold:#d4a93f; --blue:#5b9dff; --teal:#57c8b0;
+    --mono:'SF Mono','JetBrains Mono','Consolas',monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--blue);text-decoration:none}
+  .wrap{max-width:1000px;margin:0 auto;padding:20px 16px 60px}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:8px 0 18px;border-bottom:1px solid var(--line);margin-bottom:22px}
+  .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#d4a93f,#ff5c5c);display:flex;align-items:center;justify-content:center;font-size:20px}
+  h1{font-size:19px;margin:0;font-weight:650}
+  .sub{color:var(--dim);font-size:12.5px;font-family:var(--mono)}
+  .badge{margin-left:auto;background:rgba(255,92,92,.13);color:var(--red);border:1px solid rgba(255,92,92,.35);
+    padding:5px 11px;border-radius:999px;font-size:12.5px;font-weight:650;white-space:nowrap}
+  .badge.live{background:rgba(63,209,122,.12);color:var(--green);border-color:rgba(63,209,122,.3)}
+  .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--green);margin-right:5px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .grid{display:grid;gap:12px}
+  .stats{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .card .k{color:var(--dim);font-size:12px;margin-bottom:4px}
+  .card .v{font-size:22px;font-weight:650}
+  .hero{margin:12px 0;background:linear-gradient(180deg,#1a212c,#141922);border:1px solid var(--line);border-radius:16px;padding:22px}
+  .hero .lead{color:var(--red);font-weight:700;font-size:13px;letter-spacing:.3px;margin-bottom:6px}
+  .hero .big{font-size:clamp(30px,7vw,46px);font-weight:750;line-height:1.1}
+  .hero .big small{font-size:15px;color:var(--dim);font-weight:500}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px}
+  @media(max-width:640px){.row{grid-template-columns:1fr}}
+  .mini{background:var(--card2);border-radius:11px;padding:13px 15px}
+  .mini .k{color:var(--dim);font-size:11.5px}
+  .mini .v{font-size:19px;font-weight:650;margin-top:2px}
+  .bar{height:12px;border-radius:6px;overflow:hidden;display:flex;margin:10px 0 6px;background:#0e131a}
+  .bar>span{display:block;height:100%}
+  .legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--dim)}
+  .legend b{color:var(--text);font-family:var(--mono)}
+  .sw{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:5px;vertical-align:middle}
+  h2{font-size:14px;color:var(--dim);text-transform:none;font-weight:600;margin:26px 0 10px;letter-spacing:.3px}
+  .pos{color:var(--green)} .neg{color:var(--red)} .warn{color:var(--orange)} .gold{color:var(--gold)}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  td,th{padding:7px 6px;border-bottom:1px solid var(--line);text-align:left}
+  th{color:var(--dim);font-weight:500;font-size:12px}
+  td.n{font-family:var(--mono);text-align:right}
+  .tag{font-size:11px;padding:2px 7px;border-radius:6px;font-family:var(--mono)}
+  .tag.v{background:rgba(63,209,122,.13);color:var(--green)}
+  .tag.i{background:rgba(255,165,61,.13);color:var(--orange)}
+  .tag.u{background:rgba(139,146,158,.15);color:var(--dim)}
+  .note{color:var(--dim);font-size:12px;margin-top:8px}
+  .pills{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .pill{background:var(--card2);border:1px solid var(--line);border-radius:999px;padding:3px 9px;font-size:12px;color:var(--dim);font-family:var(--mono)}
+  footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim);font-size:12px}
+  .cta{display:inline-block;margin:4px 8px 4px 0;background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:8px 13px;font-size:13px;color:var(--text)}
+  .flash{animation:flash 1s ease}@keyframes flash{0%{background:rgba(63,209,122,.25)}100%{}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="logo">🔪</div>
+    <div>
+      <h1>CZ「The Final Form Bull」· 链上取证面板</h1>
+      <div class="sub">BSC · 0x7a848a5a…504444 · <span id="clock">加载中…</span></div>
+    </div>
+    <div class="badge">🔴 风险:高</div>
+  </header>
+
+  <!-- live market -->
+  <div class="grid stats">
+    <div class="card"><div class="k">价格</div><div class="v num" id="price">—</div></div>
+    <div class="card"><div class="k">FDV(名义市值)</div><div class="v num" id="fdv">—</div></div>
+    <div class="card"><div class="k">24h 成交量</div><div class="v num" id="vol">—</div></div>
+    <div class="card"><div class="k">流动性(池子深度)</div><div class="v num" id="liq">—</div></div>
+  </div>
+
+  <!-- the guillotine -->
+  <div class="hero">
+    <div class="lead">上方的铡刀 · 70% 冷钱包</div>
+    <div class="big"><span class="num" id="coldBal">—</span> <small>CZ &nbsp;(<span class="num" id="coldPct">—</span> 总供应)</small></div>
+    <div class="row">
+      <div class="mini"><div class="k">这把铡刀现值(免费铸的)</div><div class="v num gold" id="coldUsd">—</div></div>
+      <div class="mini"><div class="k">状态(实时)</div><div class="v" id="coldStatus">检测中…</div></div>
+    </div>
+    <div class="note">地址 <span class="num">0x28816c4c…29307</span> — 发行 51 秒后被锁进来,至今一枚未动。它没有任何链上时间锁;<b>一旦这个数字开始下降,就是最高级别的离场信号</b>(服务器 24/7 监控,会推 Telegram)。</div>
+  </div>
+
+  <!-- chip split + wash -->
+  <div class="row">
+    <div class="card">
+      <div class="k" style="color:var(--dim);font-size:12px;margin-bottom:2px">筹码分布(实时链上余额)</div>
+      <div class="bar" id="chipBar">
+        <span style="background:var(--gold);width:70%"></span>
+        <span style="background:var(--blue);width:1%"></span>
+        <span style="background:var(--teal);width:29%"></span>
+      </div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--gold)"></i>冷钱包 <b id="cCold">70.0%</b></span>
+        <span><i class="sw" style="background:var(--blue)"></i>池子 <b id="cPool">0.9%</b></span>
+        <span><i class="sw" style="background:var(--teal)"></i>外部流通 <b id="cExt">29%</b></span>
+      </div>
+      <div class="note">初始 LP 本是 20%,但已被净买盘买走大半——池子现在只剩不到 1%。</div>
+    </div>
+    <div class="card">
+      <div class="k" style="color:var(--dim);font-size:12px;margin-bottom:2px">成交量真伪 · 换手倍数</div>
+      <div class="v num" style="font-size:30px" id="washRatio">—</div>
+      <div class="note" id="washNote">24h 成交量 ÷ 流动性。自然交易不可能出现高倍换手——<b class="warn">量是「做」出来的,不是「买」出来的</b>。</div>
+    </div>
+  </div>
+
+  <!-- cost vs gain -->
+  <h2>成本 vs 浮盈 — 项目方几乎没花钱</h2>
+  <div class="row">
+    <div class="card"><div class="k">项目方真实现金投入</div><div class="v pos" style="font-size:26px">≈ $0</div>
+      <div class="note">铺流动性 ~$1 万(锁死)− 上线当天卖免费币回收 ~$1.5 万 = <b>本已回本</b>。代币是免费铸的。</div></div>
+    <div class="card"><div class="k">手握的 70% 免费筹码现值</div><div class="v gold num" style="font-size:26px" id="bagUsd">—</div>
+      <div class="note">零成本铸出来、刷量拉上去,浮盈全在这。<b>所有下行风险都在买盘那一侧。</b></div></div>
+  </div>
+
+  <!-- the factory -->
+  <h2>幕后:这是一条土狗流水线 🏭</h2>
+  <div class="card">
+    <div style="display:flex;flex-wrap:wrap;gap:18px;align-items:baseline">
+      <div><span class="v num" style="font-size:30px">42</span> <span class="note" style="margin:0">个代币 / 6 天</span></div>
+      <div><span class="v num neg" style="font-size:30px" id="deadN">—</span> <span class="note" style="margin:0">个已归零(实时)</span></div>
+      <div><span class="v num" style="font-size:30px">…4444</span> <span class="note" style="margin:0">靓号指纹(同一操盘)</span></div>
+    </div>
+    <div class="note">部署者 <span class="num">0x1bff8f0a…4191a</span> 6 天量产 42 个代币,全 10 亿供应、地址几乎全 <span class="num">…4444</span> 结尾,由金主 <span class="num">0xe2fc…</span>(分发过 2 万+ BNB)供血。<b>CZ 只是第 3 号产品,碰巧拉得最猛。</b>名字全是回收的币安 / CZ 叙事:</div>
+    <div class="pills">
+      <span class="pill">CZ</span><span class="pill">CZ2.0</span><span class="pill">CZ3.0</span><span class="pill">HEYI(何一)×2</span><span class="pill">BINANCIAN</span><span class="pill">🔶 BNB</span><span class="pill">红牛/金牛/登天牛</span><span class="pill">屁股决定脑袋</span><span class="pill">总有刁民想害朕</span>
+    </div>
+  </div>
+
+  <!-- winners -->
+  <h2>谁赚走了拉盘的钱</h2>
+  <div class="card">
+    <div class="note" style="margin-top:0">内部人早期只在地板价套了 ~$1.5 万。真正吃到 260 倍的,是一批<b>几乎没花钱买、却在高位卖出</b>的钱包(已实现盈亏前 15 名合计 <b class="warn">~$2.1M</b>,买入≈$0=免费筹码):</div>
+    <table>
+      <tr><th>出货地址</th><th style="text-align:right">DEX 买入</th><th style="text-align:right">已实现</th></tr>
+      <tr><td class="num">0xb71490c3…adba</td><td class="n">$0</td><td class="n pos">+$442.8k</td></tr>
+      <tr><td class="num">0x53227a6d…8e97</td><td class="n">$29k</td><td class="n pos">+$248.7k</td></tr>
+      <tr><td class="num gold">0x4337… 家族(≥8 个地址)</td><td class="n">≈$0</td><td class="n pos">各 +$100k+</td></tr>
+    </table>
+    <div class="note"><b>8+ 个地址共享 <span class="num">0x4337…</span> 前缀 = 同源出货舰队。</b>买盘那一侧,是真金白银的散户。</div>
+  </div>
+
+  <!-- evidence -->
+  <h2>证据分级 · 诚实声明</h2>
+  <div class="card">
+    <p style="margin:2px 0 10px"><span class="tag v">✅ 实证</span> 发行结构、70% 锁冷钱包且零转出、实时筹码分布、每日 VWAP(260 倍)、42 币工厂、金主出资、赢家榜——全部链上可证、可自行复现。</p>
+    <p style="margin:10px 0"><span class="tag i">🔶 推断</span> 「刷量 / 做市 / 同一伙」靠单地址高频、净额≈0、资金流、靓号指纹推断(高置信,但属行为标注,非身份实证)。</p>
+    <p style="margin:10px 0 2px"><span class="tag u">⛔ 不可知</span> 地址背后的真实身份、CEX 内部、冷钱包未来是否砸盘、场外开销——链上永远看不到。</p>
+  </div>
+
+  <footer>
+    <div>
+      <a class="cta" id="reportLink" href="#">📋 完整取证报告(10 节)</a>
+      <a class="cta" href="https://github.com/minner-fun/onchain-token-monitor-for-cz">💻 代码 / check.py / factory.py</a>
+    </div>
+    <p style="margin-top:12px">
+      <span class="badge live" style="margin:0"><span class="dot"></span>24/7 服务器监控中</span>
+      &nbsp; 冷钱包一动即推 Telegram。数据源:BSC 链上 · DexScreener · Dune。页面每 45 秒自动刷新。
+    </p>
+    <p style="color:#5a616b">本页只陈述链上行为与时间线,用于研究与风险监控演示,<b>不构成对任何主体的法律定性,也不构成投资建议</b>。</p>
+  </footer>
+
+</div>
+
+<script>
+const TOKEN="0x7a848a5a8169aa6a2f603d056a749f924f504444";
+const COLD="0x28816c4c4792467390c90e5b426f198570e29307";
+const POOL="0xd55fa2c5e63ecac3a158ca3fed4c8c2185ed45b2";
+const SUPPLY=1e9, LAUNCH_PRICE=0.000155;
+const RPCS=["https://bsc-dataseed.binance.org","https://bsc-rpc.publicnode.com","https://1rpc.io/bnb"];
+const REPORT="https://github.com/minner-fun/onchain-token-monitor-for-cz/blob/main/docs/%E6%8A%A5%E5%91%8A-CZ-The-Final-Form-Bull.md";
+document.getElementById("reportLink").href=REPORT;
+
+// 42 factory tokens (traced on-chain)
+const FACTORY=["0xd57807139db6fcd24749f540aa4c82d43e404444","0xf735b2f40d3c0a338eaf1123d7b27b02d00e4444","0x7a848a5a8169aa6a2f603d056a749f924f504444","0x5ff44be4d5a69b849eea599b1548227a0c4f4444","0x946b2165d92c3723541be9a438940e6594044444","0x9a416f99c81a806528305e32dec1668f3e364444","0x8fb310320b248617b53ae829c88628aea8e64444","0x4ce634563bb2f72961483357dc31b4c146a24444","0x73eb7f35500e2243ec2ede317f50d982e80c4444","0x585ec51ae50aef76b1c4ad12e851470ebeeeffff","0x7401e2d9c413e9661b19b4dac44dc551f7bd4444","0x8c8b2c69d36629b4b1f9ca7aa7a392f3022a4444","0xc29ad095f5afa6798269c31438a74b7a66d44444","0xe10e4913206eff535214e480ee7530d70b064444","0xaa5cfe8e2da2e3ce24b5a4e0ba27496012514444","0x095507200edecd93f57d5a41580d004f55164444","0x1bb502990974ef8dcd574fd11b98fda307564444","0xe8607964dc05943af0c6827ce867207cd4364444","0x8ca4944044545b388841227488dfea3630b84444","0x0a10924b975b23b1eb33a7b9c72b67c7ddf64444","0x46a5b49bfb6e922f44bc762e9df5d910a07c4444","0xafcbc8dc616d6c94118e62c8f3fe8d774f354444","0x4a8085a3a90d5b943f6290794ef13969293c4444","0x0411f39fd168f6f9e6fcc58db8d8dd9ce2da4444","0x60dd0591f933f5a3db518d457a4c12fd1cd84444","0x6c9a85886929cda4700d252c8e01d5bcae3b4444","0x4c5155625ccf0c8d81a216210194b4c629874444","0x1706f1e06c69f3a8cf33cce179d5d78a5c6f4444","0x41ea09866296bcda337cef78962e9943fa967777","0x3cc993c95ebdb43b56e39b90960ccab24c2dffff","0xff06b5cb8769e29c81fbe7b69265f5bad49b4444","0x4ac2111895cc725f15e1dca542273eccf7f64444","0x590b603334096a90ebfcfb7839ec1907e5904444","0x0bca38bcbbf2bbda85f5eeee1602af591e774444","0x4082691b55414476aac4d9aad69847743d2f4444","0x29eff22806c4766841d12fd20e6151d40f784444","0x1dd2362b4c1cad1be50dc82f264128e5f7104444","0xb2fd11723a73a0409a342cffd9b97f2fbfff4444","0x61396fd3db231f5f1b1c02ffcdc1f107b2b94444","0x4047aa3a6bfc97619f71bbd3a111b46e4d864444","0x0f2eccd7e99cbe6d5c1e9451a5f6ec93bcdf4444","0xfb1dc96c9832a55aa1b9e808df9e2f3345ec4444"];
+
+const $=id=>document.getElementById(id);
+const fmt=n=>Number(n).toLocaleString("en-US",{maximumFractionDigits:0});
+const usd=v=>{v=+v;if(!isFinite(v))return"$—";const a=Math.abs(v);
+  if(a>=1e9)return"$"+(v/1e9).toFixed(2)+"B";if(a>=1e6)return"$"+(v/1e6).toFixed(2)+"M";
+  if(a>=1e3)return"$"+(v/1e3).toFixed(1)+"K";return"$"+v.toFixed(2);};
+
+async function rpcBalance(holder){
+  const data="0x70a08231"+holder.slice(2).toLowerCase().padStart(64,"0");
+  for(const url of RPCS){
+    try{const r=await fetch(url,{method:"POST",headers:{"content-type":"application/json"},
+      body:JSON.stringify({jsonrpc:"2.0",id:1,method:"eth_call",params:[{to:TOKEN,data},"latest"]})});
+      const j=await r.json();if(j.result&&j.result!=="0x")return parseInt(j.result,16)/1e18;}catch(e){}
+  }
+  return null;
+}
+async function dexTokens(addrs){
+  // batch up to 30 per call
+  const out={};
+  for(let i=0;i<addrs.length;i+=30){
+    const chunk=addrs.slice(i,i+30).join(",");
+    try{const r=await fetch("https://api.dexscreener.com/latest/dex/tokens/"+chunk);
+      const d=await r.json();
+      for(const p of (d.pairs||[])){
+        const a=(p.baseToken&&p.baseToken.address||"").toLowerCase();
+        const liq=(p.liquidity&&p.liquidity.usd)||0;
+        if(!out[a]||liq>out[a].liq)out[a]={liq,price:+p.priceUsd||0,vol:(p.volume&&p.volume.h24)||0,fdv:p.fdv||0};
+      }}catch(e){}
+  }
+  return out;
+}
+
+let prevCold=null;
+async function refresh(){
+  // CZ market
+  try{
+    const m=(await dexTokens([TOKEN]))[TOKEN.toLowerCase()];
+    if(m){
+      $("price").textContent="$"+m.price.toFixed(m.price<0.01?6:4);
+      $("fdv").textContent=usd(m.fdv);
+      $("vol").textContent=usd(m.vol);
+      $("liq").textContent=usd(m.liq);
+      const wr=m.liq?m.vol/m.liq:0;
+      $("washRatio").innerHTML=wr.toFixed(0)+"×"+(wr>=5?' <span class="warn" style="font-size:13px">刷量</span>':"");
+      window._price=m.price;window._liq=m.liq;
+    }
+  }catch(e){}
+  // cold + pool balances -> chip split + values
+  const [cold,pool]=await Promise.all([rpcBalance(COLD),rpcBalance(POOL)]);
+  const price=window._price||0;
+  if(cold!=null){
+    const pct=cold/SUPPLY*100;
+    const el=$("coldBal");el.textContent=fmt(cold);
+    if(prevCold!=null&&cold<prevCold-1){el.classList.add("flash");}
+    prevCold=cold;
+    $("coldPct").textContent=pct.toFixed(1)+"%";
+    $("coldUsd").textContent=price?usd(cold*price):"—";
+    $("bagUsd").textContent=price?usd(cold*price):"—";
+    const moved=cold<700000000-1000000;
+    $("coldStatus").innerHTML=moved
+      ? '<span class="neg">🔴 已异动!铡刀开始动</span>'
+      : '<span class="pos">✅ 静默 · 一枚未动</span>';
+    $("cCold").textContent=pct.toFixed(1)+"%";
+    if(pool!=null){
+      const pp=pool/SUPPLY*100, ext=Math.max(0,100-pct-pp);
+      $("cPool").textContent=pp.toFixed(1)+"%";
+      $("cExt").textContent=ext.toFixed(0)+"%";
+      $("chipBar").innerHTML=
+        `<span style="background:var(--gold);width:${pct}%"></span>`+
+        `<span style="background:var(--blue);width:${Math.max(pp,0.4)}%"></span>`+
+        `<span style="background:var(--teal);width:${ext}%"></span>`;
+    }
+  }
+  // factory body count
+  try{
+    const st=await dexTokens(FACTORY);
+    let alive=0;for(const a of FACTORY){const t=st[a.toLowerCase()];if(t&&t.liq>=5000)alive++;}
+    $("deadN").textContent=(FACTORY.length-alive);
+  }catch(e){}
+  $("clock").textContent="更新于 "+new Date().toLocaleTimeString("zh-CN");
+}
+refresh();setInterval(refresh,45000);
+</script>
+</body>
+</html>
