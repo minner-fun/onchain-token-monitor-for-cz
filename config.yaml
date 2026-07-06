@@ -1,0 +1,31 @@
+# Monitoring config for CZ "The Final Form Bull" (BSC).
+# All addresses are on-chain verified (see docs/报告-CZ-The-Final-Form-Bull.md).
+asset:
+  symbol: CZ
+  name: The Final Form Bull
+  chain: bnb
+  token: "0x7a848a5a8169aa6a2f603d056a749f924f504444"
+  total_supply: 1000000000
+  decimals: 18
+  pool: "0xd55fa2c5e63ecac3a158ca3fed4c8c2185ed45b2"   # PancakeSwap V2 main pool
+
+# The wallets that decide this token's risk.
+watchlist:
+  - addr: "0x28816c4c4792467390c90e5b426f198570e29307"
+    role: bunker            # the 70% cold wallet — any outflow = top exit signal
+    label: "Cold wallet (70% guillotine)"
+    baseline: 700000000
+  - addr: "0x1bff8f0ade179dfa1beddb54fa5d7d6dc814191a"
+    role: deployer          # controlled 74% at genesis; drip-selling into the pool
+    label: "Deployer"
+  - addr: "0x9999b0cdd35d7f3b281ba02efc0d228486940515"
+    role: wash              # 61k trades, net ~0 — wash bot
+    label: "Wash bot #1"
+  - addr: "0xf70da97812cb96acdf810712aa562db8dfa3dbef"
+    role: support           # one-sided buyer +$6.56M — props the price
+    label: "Price-support wallet"
+
+# Wash / manipulation heuristics
+signals:
+  wash_vol_liq_ratio: 5.0   # 24h volume / liquidity above this = likely inflated volume
+  cold_wallet_drop: 1000000 # tokens; any drop in the bunker balance beyond this = CRITICAL
