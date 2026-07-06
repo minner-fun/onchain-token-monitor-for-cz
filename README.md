@@ -44,16 +44,25 @@ watched wallets (live balanceOf):
 
 ---
 
-## 📡 完整监控设计(4 个信号)
+## 📡 24/7 常驻监控(`bscmon`)
 
-`check.py` 是一次性快照;完整版把这 4 个信号做成 24/7 自动监控 + Telegram 告警(架构复用 `onchain-token-monitor`):
+`check.py` 是一次性快照;`bscmon/` 是常驻守护进程,把信号做成 24/7 自动监控 + **Telegram 告警**(架构思路复用 `onchain-token-monitor`)。
 
-| 信号 | 监控对象 | 触发 = |
-|------|----------|--------|
-| 🔴 **铡刀异动** | 冷钱包 `0x28816c4c…` 余额 / 转出 | 任何转出 → 顶级离场信号(critical) |
-| 🔻 **部署者出货** | 部署者 `0x1bff8f0a…` → 池 / CEX | 持续供货 / 加速(warn) |
-| 🤖 **虚假放量** | vol24h ÷ 流动性 | 比值畸高 = 量是刷的(info) |
-| 🟢 **托价/对敲舰队** | 做市地址活跃度 | 舰队停摆 = 撑盘结束(warn) |
+```bash
+python -m bscmon.run --once     # 自检:各任务跑一次,写入 data/cz_monitor.db
+python -m bscmon.run            # 常驻:按间隔轮询,冷钱包一动就推 Telegram
+```
+
+Telegram 可选:在 `.env` 填 `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID`(不填则只打印+写库)。
+
+| 信号 | 监控对象 | 触发 | 告警级别 |
+|------|----------|------|----------|
+| 🔴 **铡刀异动** | 冷钱包 `0x28816c4c…` 余额 | 余额下降 = 70% 开始动 → 顶级离场信号 | **critical(推 Telegram)** |
+| 🔻 **部署者出货** | 部署者 `0x1bff8f0a…` | 余额下降 / 转出 | warn(推) |
+| 🤖 **虚假放量** | vol24h ÷ 流动性 | 比值畸高 = 量是刷的 | info(只写库,不推) |
+
+**核心信号(冷钱包异动)用 `balanceOf` 轮询,任何公共 BSC 节点都能跑,开箱即用。**
+要额外**命名转出去向**(进池 / 进 CEX / 拆分到新地址)需要 `eth_getLogs`——公共免费节点大多限制它,把 `.env` 里的 `BSC_RPC` 指向一个支持 logs 的节点(自建 / Ankr / Alchemy / QuickNode)即可;不配也不影响铡刀告警。
 
 配置见 [`config.yaml`](config.yaml)(全部地址已链上核实)。
 
