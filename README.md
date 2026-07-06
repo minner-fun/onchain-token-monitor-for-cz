@@ -44,6 +44,33 @@ watched wallets (live balanceOf):
 
 ---
 
+## 🏭 工厂扫描器(`factory.py`)—— 一眼看穿「土狗流水线」
+
+发行 CZ 的地址 `0x1bff8f0a…` 是一台**代币工厂**:6 天量产 42 个代币(全 `…4444` 靓号)。`factory.py` 内置了这 42 个链上追出来的地址,跑一遍 DexScreener 出**尸检报告**——现在还剩几个活的:
+
+```bash
+python factory.py
+```
+
+实测(节选):
+
+```
+  #  launched   symbol        liquidity      24h vol  status
+  3  2026-07-03 CZ             $780,295  $40,329,886  ✅ alive  ← CZ（工厂最成功的一个）
+  8  2026-07-04 HEYI           $143,615   $4,234,300  ✅ alive
+  6  2026-07-04 HEYI                 $0      $59,560  💀 DEAD
+ 33  2026-07-06 红牛                   $0     $180,499  💀 DEAD
+ 42  2026-07-06 屁股决定脑袋               $0      $21,917  💀 DEAD
+
+Body count: 16/42 already dead, 26 still trading.
+```
+
+名字全是回收的币安 / CZ 叙事——多个 `HEYI`(何一)、`BINANCIAN`、`🔶 BNB`、`CZ / CZ2.0 / CZ3.0`、`红牛 / 金牛 / 登天牛`……**一条把「币安人物」当模板批量生产的流水线,CZ 只是碰巧拉得最猛的那个。**
+
+> 动态模式(查任意部署者,需免费 BscScan key):`BSCSCAN_API_KEY=... python factory.py --deployer 0x…`
+
+---
+
 ## 📡 24/7 常驻监控(`bscmon`)
 
 `check.py` 是一次性快照;`bscmon/` 是常驻守护进程,把信号做成 24/7 自动监控 + **Telegram 告警**(架构思路复用 `onchain-token-monitor`)。
