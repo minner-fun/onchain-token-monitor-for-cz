@@ -266,6 +266,10 @@ CZ 工厂的启动资金来自 `0xe2fc31f8…3ae1`——它在工厂铸第一个
 
 **可监控化**:上面 4 个信号(冷钱包异动、成交量真伪、部署者出货、做市舰队活跃度)全部可以做成 24/7 自动监控 + Telegram 告警——见本仓库的监控系统。
 
+> 🔔 **订阅铡刀异动告警**:[**t.me/minner_cz_bot**](https://t.me/minner_cz_bot) · 实时面板 [**cz.minner.fun**](https://cz.minner.fun/)
+>
+> <img src="qr-bot.png" alt="订阅 @minner_cz_bot" width="130">
+
 ---
 
 ## 附:关键地址清单（全地址,便于自行核验）

@@ -5,6 +5,12 @@
 ### 👉 [**实时网页面板 · cz.minner.fun**](https://cz.minner.fun/)
 > 冷钱包实时余额、刷量倍数、42 币工厂存活数——打开即看,每 45 秒自动刷新。
 
+### 🔔 [**订阅铡刀异动告警 · @minner_cz_bot**](https://t.me/minner_cz_bot)
+> 那 7 亿冷钱包一动,第一时间推你 Telegram。扫码订阅:
+>
+> <img src="docs/qr-bot.png" alt="订阅 @minner_cz_bot" width="150">
+
+
 > 这是 [`onchain-token-monitor`](https://github.com/minner-fun/onchain-token-monitor) 针对一个具体 BSC 代币做的**案例实例**:一份完整的链上取证报告 + 实时核查工具 + 网页面板 + 24/7 服务器监控。
 > 目标:用不可篡改的链上数据,把「谁在控盘、量是不是真的、风险悬在哪里」讲清楚。
 
