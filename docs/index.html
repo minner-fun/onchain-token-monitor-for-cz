@@ -63,6 +63,18 @@
   footer{margin-top:34px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim);font-size:12px}
   .cta{display:inline-block;margin:4px 8px 4px 0;background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:8px 13px;font-size:13px;color:var(--text)}
   .flash{animation:flash 1s ease}@keyframes flash{0%{background:rgba(63,209,122,.25)}100%{}}
+  .pressure{height:8px;border-radius:5px;overflow:hidden;display:flex;margin:7px 0 10px;background:#0e131a}
+  .pressure>span{display:block;height:100%;transition:width .6s ease}
+  .feed{max-height:360px;overflow-y:auto;padding-right:4px}
+  .feed::-webkit-scrollbar{width:6px}.feed::-webkit-scrollbar-thumb{background:#2a3341;border-radius:3px}
+  .trade{display:grid;grid-template-columns:56px 1fr auto;gap:8px;align-items:center;padding:8px 10px;border-radius:9px;margin-bottom:5px;background:var(--card2);border-left:3px solid var(--line);font-size:13px;animation:slidein .5s ease}
+  .trade.buy{border-left-color:var(--green)} .trade.sell{border-left-color:var(--red)}
+  .trade .side{font-weight:700;font-size:12px;white-space:nowrap}
+  .trade .side.buy{color:var(--green)} .trade .side.sell{color:var(--red)}
+  .trade .amt{font-family:var(--mono)} .trade .amt b{font-size:14px}
+  .trade .meta{text-align:right;color:var(--dim);font-size:11px;font-family:var(--mono);white-space:nowrap}
+  .trade a{color:var(--dim)}
+  @keyframes slidein{from{opacity:0;transform:translateY(-9px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
@@ -117,6 +129,17 @@
       <div class="v num" style="font-size:30px" id="washRatio">—</div>
       <div class="note" id="washNote">24h 成交量 ÷ 流动性。自然交易不可能出现高倍换手——<b class="warn">量是「做」出来的,不是「买」出来的</b>。</div>
     </div>
+  </div>
+
+  <!-- live trade feed -->
+  <h2>🟢🔴 实时链上成交 · 每 10 秒刷新</h2>
+  <div class="card">
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--dim)">
+      <span>买卖压力(近期)</span><span id="pressureTxt">加载中…</span>
+    </div>
+    <div class="pressure"><span id="pBuy" style="background:var(--green);width:50%"></span><span id="pSell" style="background:var(--red);width:50%"></span></div>
+    <div class="feed" id="feed"><div class="note">加载成交流…</div></div>
+    <div class="note">数据源:GeckoTerminal(PancakeSwap 池实时成交)。提醒:大部分成交是对敲 / 做市机器人在刷,别把热闹当真实买盘。</div>
   </div>
 
   <!-- cost vs gain -->
@@ -270,6 +293,48 @@ async function refresh(){
   $("clock").textContent="更新于 "+new Date().toLocaleTimeString("zh-CN");
 }
 refresh();setInterval(refresh,45000);
+
+// ---- live trade feed (GeckoTerminal, PancakeSwap pool) ----
+const CZ_ADDR=TOKEN.toLowerCase();
+const seenTx=new Set(); let tradeRows=[];
+const agoTxt=ts=>{const s=Math.max(0,(Date.now()-new Date(ts).getTime())/1000);
+  return s<60?Math.floor(s)+"s":s<3600?Math.floor(s/60)+"m":Math.floor(s/3600)+"h";};
+function makeRow(t){
+  const d=document.createElement("div"); d.className="trade "+t.side;
+  const label=t.side==="buy"?"🟢 买":"🔴 卖";
+  d.innerHTML=`<span class="side ${t.side}">${label}</span>`+
+    `<span class="amt"><b>${usd(t.usd)}</b> · ${fmt(t.cz)} CZ</span>`+
+    `<span class="meta"><span class="ago">${agoTxt(t.ts)}</span>前 · `+
+    `<a href="https://bscscan.com/tx/${t.tx}" target="_blank" rel="noopener">tx↗</a></span>`;
+  return d;
+}
+function updatePressure(){
+  const last=tradeRows.slice(0,50), buys=last.filter(t=>t.side==="buy").length;
+  const bp=last.length?Math.round(buys/last.length*100):50;
+  $("pBuy").style.width=bp+"%"; $("pSell").style.width=(100-bp)+"%";
+  $("pressureTxt").innerHTML=`买 <b class="pos">${bp}%</b> / 卖 <b class="neg">${100-bp}%</b> · 近 ${last.length} 笔`;
+}
+async function fetchTrades(){
+  try{
+    const r=await fetch(`https://api.geckoterminal.com/api/v2/networks/bsc/pools/${POOL}/trades`);
+    const rows=((await r.json()).data||[]).map(x=>x.attributes);
+    const feed=$("feed"); if(feed.querySelector(".note"))feed.innerHTML="";
+    const fresh=rows.filter(a=>a.tx_hash&&!seenTx.has(a.tx_hash)).reverse(); // oldest-new first
+    for(const a of fresh){
+      seenTx.add(a.tx_hash);
+      const fromCZ=(a.from_token_address||"").toLowerCase()===CZ_ADDR;
+      const t={side:a.kind==="buy"?"buy":"sell",usd:+a.volume_in_usd||0,
+        cz:+(fromCZ?a.from_token_amount:a.to_token_amount)||0,ts:a.block_timestamp,tx:a.tx_hash};
+      tradeRows.unshift(t); feed.insertBefore(makeRow(t),feed.firstChild);
+    }
+    while(feed.children.length>40)feed.removeChild(feed.lastChild);
+    tradeRows=tradeRows.slice(0,40);
+    feed.querySelectorAll(".trade").forEach((el,i)=>{const a=el.querySelector(".ago"); if(a&&tradeRows[i])a.textContent=agoTxt(tradeRows[i].ts);});
+    updatePressure();
+    if(seenTx.size>3000){seenTx.clear();tradeRows.forEach(t=>seenTx.add(t.tx));}
+  }catch(e){}
+}
+fetchTrades(); setInterval(fetchTrades,10000);
 </script>
 </body>
 </html>
