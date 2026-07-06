@@ -53,6 +53,11 @@ def insert_market(ts, price, liq, vol24h, ratio):
     conn().commit()
 
 
+def last_market():
+    return conn().execute(
+        "SELECT ts,price,liq,vol24h,ratio FROM market_snapshot ORDER BY ts DESC LIMIT 1").fetchone()
+
+
 def insert_event(ts, type_, severity, addr, title, detail, tx=None):
     conn().execute("INSERT INTO event(ts,type,severity,addr,title,detail,tx) VALUES(?,?,?,?,?,?,?)",
                    (ts, type_, severity, addr, title, detail, tx)); conn().commit()
