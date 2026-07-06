@@ -14,6 +14,7 @@ import threading
 from . import config, db
 from .notify import log
 from . import jobs
+from . import telegram
 
 
 def _loop(name, fn, interval):
@@ -53,6 +54,7 @@ def main():
     log("=" * 56)
 
     jobs.job_transfers(baseline=True)      # set block baselines silently
+    threading.Thread(target=telegram.poll_loop, name="tg", daemon=True).start()  # /start subscriptions
     threads = []
     for name, fn, interval in specs:
         t = threading.Thread(target=_loop, args=(name, fn, interval), name=name, daemon=True)

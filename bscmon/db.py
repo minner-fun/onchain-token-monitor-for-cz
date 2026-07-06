@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-"""SQLite storage: balance snapshots, market snapshots, events, cursors."""
+"""SQLite storage: balance snapshots, market snapshots, events, cursors, subscribers."""
 import os
+import time
 import sqlite3
 import threading
 
@@ -17,6 +18,7 @@ CREATE TABLE IF NOT EXISTS event(
   addr TEXT, title TEXT, detail TEXT, tx TEXT);
 CREATE INDEX IF NOT EXISTS ix_evt ON event(ts);
 CREATE TABLE IF NOT EXISTS cursor(key TEXT PRIMARY KEY, value TEXT);
+CREATE TABLE IF NOT EXISTS subscriber(chat_id TEXT PRIMARY KEY, first_seen INTEGER);
 """
 
 
@@ -65,3 +67,17 @@ def set_cursor(key, value):
     conn().execute("INSERT INTO cursor(key,value) VALUES(?,?) "
                    "ON CONFLICT(key) DO UPDATE SET value=excluded.value", (key, str(value)))
     conn().commit()
+
+
+def add_subscriber(chat_id):
+    """Record a Telegram subscriber. Returns True if newly added."""
+    chat_id = str(chat_id)
+    existed = conn().execute("SELECT 1 FROM subscriber WHERE chat_id=?", (chat_id,)).fetchone()
+    conn().execute("INSERT OR IGNORE INTO subscriber(chat_id,first_seen) VALUES(?,?)",
+                   (chat_id, int(time.time())))
+    conn().commit()
+    return existed is None
+
+
+def all_subscribers():
+    return [r["chat_id"] for r in conn().execute("SELECT chat_id FROM subscriber").fetchall()]
