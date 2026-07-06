@@ -5,11 +5,16 @@ Anyone who /starts the bot (e.g. via the QR / t.me link) is recorded as a subscr
 and thereafter receives the same alerts the owner gets (see notify._broadcast)."""
 import json
 import time
+import datetime as dt
 import urllib.parse
 import urllib.request
 
 from . import config, db
 from .notify import send_telegram, log
+
+
+def _is_owner(chat):
+    return config.TELEGRAM_CHAT_ID and str(chat) == str(config.TELEGRAM_CHAT_ID)
 
 WELCOME = (
     "🔪 已订阅 CZ 「The Final Form Bull」监控。\n"
@@ -49,6 +54,18 @@ def _status_text():
     return "\n".join(lines)
 
 
+def _subs_text():
+    """Admin-only: subscriber list with join time."""
+    rows = db.subscribers_detailed()
+    lines = [f"👥 订阅者:{len(rows)} 人"]
+    for i, (c, ts) in enumerate(rows, 1):
+        when = dt.datetime.utcfromtimestamp(ts).strftime("%m-%d %H:%M") if ts else "?"
+        lines.append(f"{i}. {c} · {when} UTC")
+    if not rows:
+        lines.append("(暂无订阅者)")
+    return "\n".join(lines)
+
+
 def poll_loop():
     """Long-poll for updates; subscribe on /start. Runs as a daemon thread."""
     if not config.TELEGRAM_BOT_TOKEN:
@@ -56,10 +73,21 @@ def poll_loop():
         return
     offset = int(db.get_cursor("tg_offset") or 0)
     try:
+        # public menu (everyone)
         _api("setMyCommands", {"commands": json.dumps([
             {"command": "status", "description": "查看冷钱包 + 价格现状"},
             {"command": "start", "description": "订阅铡刀异动告警"},
         ])})
+        # owner menu (adds the hidden admin command, only in the owner's chat)
+        if config.TELEGRAM_CHAT_ID:
+            _api("setMyCommands", {
+                "commands": json.dumps([
+                    {"command": "status", "description": "查看冷钱包 + 价格现状"},
+                    {"command": "subs", "description": "查看订阅者(管理员)"},
+                    {"command": "start", "description": "订阅铡刀异动告警"},
+                ]),
+                "scope": json.dumps({"type": "chat", "chat_id": int(config.TELEGRAM_CHAT_ID)}),
+            })
     except Exception:
         pass
     log("telegram: subscription poller started")
@@ -80,6 +108,11 @@ def poll_loop():
                         log(f"telegram: new subscriber {chat}")
                 elif text.startswith("/status"):
                     send_telegram(chat, _status_text())
+                elif text.startswith("/subs"):
+                    if _is_owner(chat):
+                        send_telegram(chat, _subs_text())
+                    else:
+                        send_telegram(chat, "⛔ 该指令仅管理员可用。")
             db.set_cursor("tg_offset", offset)
         except Exception as e:
             log(f"telegram updates: {e}")

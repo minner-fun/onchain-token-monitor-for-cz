@@ -86,3 +86,8 @@ def add_subscriber(chat_id):
 
 def all_subscribers():
     return [r["chat_id"] for r in conn().execute("SELECT chat_id FROM subscriber").fetchall()]
+
+
+def subscribers_detailed():
+    return [(r["chat_id"], r["first_seen"]) for r in
+            conn().execute("SELECT chat_id,first_seen FROM subscriber ORDER BY first_seen").fetchall()]
