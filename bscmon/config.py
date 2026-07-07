@@ -31,6 +31,7 @@ _load_env()
 BSC_RPC            = os.environ.get("BSC_RPC") or DEFAULT_RPC
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID", "")
+ANKR_URL           = os.environ.get("ANKR_URL", "")   # Ankr Advanced API multichain URL (with key)
 DB_PATH            = os.environ.get("MONITOR_DB", os.path.join(ROOT, "data", "cz_monitor.db"))
 
 

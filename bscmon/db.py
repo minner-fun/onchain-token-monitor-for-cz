@@ -20,6 +20,7 @@ CREATE INDEX IF NOT EXISTS ix_evt ON event(ts);
 CREATE TABLE IF NOT EXISTS cursor(key TEXT PRIMARY KEY, value TEXT);
 CREATE TABLE IF NOT EXISTS subscriber(chat_id TEXT PRIMARY KEY, first_seen INTEGER);
 CREATE TABLE IF NOT EXISTS seen_token(token TEXT PRIMARY KEY, ts INTEGER);
+CREATE TABLE IF NOT EXISTS watched_deployer(addr TEXT PRIMARY KEY, ts INTEGER);
 """
 
 
@@ -101,3 +102,12 @@ def token_seen(token):
 def mark_token(token):
     conn().execute("INSERT OR IGNORE INTO seen_token(token,ts) VALUES(?,?)", (token, int(time.time())))
     conn().commit()
+
+
+def add_watched_deployer(addr):
+    conn().execute("INSERT OR IGNORE INTO watched_deployer(addr,ts) VALUES(?,?)",
+                   (addr.lower(), int(time.time()))); conn().commit()
+
+
+def watched_deployers():
+    return set(r["addr"] for r in conn().execute("SELECT addr FROM watched_deployer").fetchall())

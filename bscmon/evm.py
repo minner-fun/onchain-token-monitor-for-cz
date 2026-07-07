@@ -58,6 +58,36 @@ def large_outflows(addr, start_block, end_block, min_bnb):
     return out
 
 
+def ankr_funded_recipients(funder, from_block, min_bnb=0.1, max_pages=5, page_size=100):
+    """Addresses that received BNB (value >= min_bnb) from `funder` since from_block, via the
+    Ankr Advanced API. Returns (recipients_set, latest_block_seen). Needs config.ANKR_URL."""
+    if not config.ANKR_URL:
+        return set(), from_block
+    funder = funder.lower()
+    recips, latest, page_token, pages = set(), from_block, None, 0
+    while pages < max_pages:
+        params = {"blockchain": "bsc", "address": [funder], "fromBlock": from_block,
+                  "pageSize": page_size, "descOrder": False}
+        if page_token:
+            params["pageToken"] = page_token
+        body = json.dumps({"jsonrpc": "2.0", "method": "ankr_getTransactionsByAddress",
+                           "params": params, "id": 1}).encode()
+        req = urllib.request.Request(config.ANKR_URL, data=body,
+                                     headers={"Content-Type": "application/json", "User-Agent": UA})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            res = (json.load(r).get("result") or {})
+        for t in res.get("transactions") or []:
+            latest = max(latest, int(t.get("blockNumber", "0x0"), 16))
+            if (t.get("from") or "").lower() == funder and t.get("to"):
+                if int(t.get("value", "0x0"), 16) / 1e18 >= min_bnb:
+                    recips.add(t["to"].lower())
+        page_token = res.get("nextPageToken")
+        pages += 1
+        if not page_token:
+            break
+    return recips, latest
+
+
 def block_number():
     return int(_rpc("eth_blockNumber", []), 16)
 

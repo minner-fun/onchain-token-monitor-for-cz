@@ -167,7 +167,7 @@ def job_new_pools():
     """Watch for new tokens launched by a known network deployer (A-signal, keyless):
     poll GeckoTerminal new_pools; for each new token, confirm its creator via GoPlus;
     if the creator is in deployer_watch, alert the owner. First run baselines (no alerts)."""
-    watch = CFG.deployer_watch
+    watch = CFG.deployer_watch | db.watched_deployers()   # config seed + auto-harvested
     if not watch:
         return
     pools = price.new_pools()
@@ -200,4 +200,32 @@ def job_new_pools():
         db.set_cursor("newpool_baselined", "1")
         log(f"newpools: baseline set ({len(pools)} pools recorded)")
     else:
-        log(f"newpools: checked {checked} new token(s)")
+        log(f"newpools: checked {checked} new token(s) against {len(watch)} watched deployers")
+
+
+# ---------------------------------------------------------------- harvest (auto-discover deployers)
+def job_harvest():
+    """Auto-discover deployers: harvest addresses the paymaster funds with BNB (via Ankr) into the
+    watch set, so newpools catches their launches. Needs ANKR_URL. Baselines on first run."""
+    fw = CFG.funder_watch
+    if not config.ANKR_URL or not fw:
+        return
+    ck = "harvest_block"
+    cur = db.get_cursor(ck)
+    if cur is None:                       # first run: baseline, don't backfill history
+        try:
+            hb = evm.block_number()
+        except Exception as e:
+            log(f"harvest: {e}"); return
+        db.set_cursor(ck, hb); log(f"harvest: baseline block {hb}"); return
+    try:
+        recips, latest = evm.ankr_funded_recipients(fw["addr"], int(cur) + 1)
+    except Exception as e:
+        log(f"harvest: {e}"); return
+    n = 0
+    for a in recips:
+        if a not in CFG.deployer_watch:
+            db.add_watched_deployer(a); n += 1
+    db.set_cursor(ck, latest)
+    if n:
+        log(f"harvest: +{n} funded address(es) → deployer watch now {len(CFG.deployer_watch)+len(db.watched_deployers())}")

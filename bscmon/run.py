@@ -38,6 +38,7 @@ def main():
         ("balance",  jobs.job_balance,  iv.get("balance", 180)),
         ("transfer", jobs.job_transfers, iv.get("transfer", 60)),
         ("funder",   jobs.job_funder,   iv.get("funder", 300)),
+        ("harvest",  jobs.job_harvest,  iv.get("harvest", 600)),
         ("newpools", jobs.job_new_pools, iv.get("newpools", 180)),
     ]
 
@@ -47,6 +48,7 @@ def main():
         jobs.job_balance()
         jobs.job_transfers(baseline=True)
         jobs.job_funder()
+        jobs.job_harvest()
         jobs.job_new_pools()
         log(f"=== done, data in {config.DB_PATH} ===")
         return
