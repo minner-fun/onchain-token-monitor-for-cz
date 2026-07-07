@@ -146,8 +146,11 @@ def job_funder():
         except Exception as e:
             log(f"funder scan: {e}"); hits = []
         owner = config.TELEGRAM_CHAT_ID
+        bnb_px = price.bnb_usd() if hits else None
         for h in hits:
-            title = f"💰 {label} 大额出账 {h['bnb']:,.1f} BNB → {h['to']}"
+            uv = (h["bnb"] * bnb_px) if bnb_px else 0
+            usd = f"(≈ ${uv/1e4:,.0f} 万)" if uv >= 1e4 else (f"(≈ ${uv:,.0f})" if uv else "")
+            title = f"💰 {label} 大额出账 {h['bnb']:,.1f} BNB {usd} → {h['to']}"
             detail = ("可能在给新盘铺 LP / 做市资金 —— 盯这个地址,它接下来很可能发 / 拉新币。\n"
                       f"https://bscscan.com/address/{h['to']}")
             db.insert_event(int(time.time()), "funder_out", "warn", h["to"], title, detail, h["tx"])

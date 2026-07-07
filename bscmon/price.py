@@ -27,3 +27,15 @@ def market(token=None):
         "vol24h": (best.get("volume") or {}).get("h24") or 0,
         "fdv": best.get("fdv"),
     }
+
+
+def bnb_usd():
+    """Current BNB price in USD (Binance ticker, keyless). None on failure."""
+    try:
+        req = urllib.request.Request(
+            "https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT",
+            headers={"User-Agent": UA})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return float((json.load(r) or {}).get("price"))
+    except Exception:
+        return None
