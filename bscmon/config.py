@@ -47,6 +47,7 @@ class Config:
         self.signals = raw.get("signals", {})
         self.intervals = raw.get("intervals", {})
         self.funder_watch = raw.get("funder_watch", {})
+        self.deployer_watch = set(a.lower() for a in raw.get("deployer_watch", []))
         self.labels = {w["addr"].lower(): w.get("label", w["addr"]) for w in self.watchlist}
         self.labels[self.pool] = "PancakeSwap pool"
 

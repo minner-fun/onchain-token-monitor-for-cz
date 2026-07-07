@@ -37,3 +37,18 @@ funder_watch:
   addr: "0xe2fc31f816a9b94326492132018c3aecc4a93ae1"
   label: "Paymaster (Binance-funded treasury)"
   min_bnb: 50               # alert only on outflows >= this many BNB (filters gas-dust noise)
+
+# A-signal: known deployers in this paymaster network. Poll new pools; when one of these
+# launches a token, alert (keyless: GeckoTerminal new_pools + GoPlus creator match).
+# Seeded from line-2 (top active deployers + CZ's factory). Expand via Dune / an indexer.
+deployer_watch:
+  - "0x1bff8f0ade179dfa1beddb54fa5d7d6dc814191a"   # CZ's factory (42 tokens)
+  - "0x08903b3ad2e3eab80d2e5031c5a53fca644dccac"   # 618 tokens
+  - "0x74f02a82a35a197a4bdca95d8d04e898fc67a5ca"   # 484
+  - "0xd5799ad98eff3ab2f5cd8b3cd2cff891b4f71bc7"   # 342
+  - "0xf04af61aafd305e52294e82d2af1139cc80a90f3"   # 181
+  - "0x979325383bd8bfc3be3a3704984a59d318149589"   # 160
+  - "0x2d172d1183c8760b0ab11f5d5729b78103b9f049"   # 118
+  - "0x15e0629a4a1618f25e0713af7500dd96a938e0be"   # 111
+  - "0xd7828f0aa42c863ef2dabfe01832111ed21034c8"   # 107
+  - "0x996691fb8d036eff38fefee5ab79cf91caf8cd22"   # 107

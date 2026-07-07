@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS event(
 CREATE INDEX IF NOT EXISTS ix_evt ON event(ts);
 CREATE TABLE IF NOT EXISTS cursor(key TEXT PRIMARY KEY, value TEXT);
 CREATE TABLE IF NOT EXISTS subscriber(chat_id TEXT PRIMARY KEY, first_seen INTEGER);
+CREATE TABLE IF NOT EXISTS seen_token(token TEXT PRIMARY KEY, ts INTEGER);
 """
 
 
@@ -91,3 +92,12 @@ def all_subscribers():
 def subscribers_detailed():
     return [(r["chat_id"], r["first_seen"]) for r in
             conn().execute("SELECT chat_id,first_seen FROM subscriber ORDER BY first_seen").fetchall()]
+
+
+def token_seen(token):
+    return conn().execute("SELECT 1 FROM seen_token WHERE token=?", (token,)).fetchone() is not None
+
+
+def mark_token(token):
+    conn().execute("INSERT OR IGNORE INTO seen_token(token,ts) VALUES(?,?)", (token, int(time.time())))
+    conn().commit()

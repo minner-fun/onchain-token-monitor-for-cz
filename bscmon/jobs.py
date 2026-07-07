@@ -160,3 +160,44 @@ def job_funder():
         log(f"funder: balance -{drop:,.0f} BNB → scanned {latest-start+1} blocks, {len(hits)} large outflow(s)")
     db.set_cursor("funder_bal", bal)
     db.set_cursor("funder_block", latest)
+
+
+# ---------------------------------------------------------------- new pools (known-deployer launch watch)
+def job_new_pools():
+    """Watch for new tokens launched by a known network deployer (A-signal, keyless):
+    poll GeckoTerminal new_pools; for each new token, confirm its creator via GoPlus;
+    if the creator is in deployer_watch, alert the owner. First run baselines (no alerts)."""
+    watch = CFG.deployer_watch
+    if not watch:
+        return
+    pools = price.new_pools()
+    if not pools:
+        log("newpools: none / fetch failed"); return
+    baselined = db.get_cursor("newpool_baselined") == "1"
+    owner = config.TELEGRAM_CHAT_ID
+    checked = 0
+    for p in pools:
+        tok = p["token"]
+        if db.token_seen(tok):
+            continue
+        db.mark_token(tok)
+        if not baselined:                    # first run: record only, don't check/alert
+            continue
+        if checked >= 15:                    # cap GoPlus lookups per cycle
+            continue
+        creator = price.token_creator(tok); checked += 1
+        if creator and creator in watch:
+            name = p.get("name", "") or tok
+            title = f"🎯 已知发币地址又发新盘:{name}"
+            detail = (f"deployer {creator} 属于我们盯的网络。新币 {tok}\n"
+                      f"https://dexscreener.com/bsc/{tok}\n"
+                      f"https://gopluslabs.io/token-security/56/{tok}")
+            db.insert_event(int(time.time()), "new_pool", "warn", tok, title, detail)
+            log(title)
+            if owner:
+                send_telegram(owner, f"🟠 {title}\n{detail}")
+    if not baselined:
+        db.set_cursor("newpool_baselined", "1")
+        log(f"newpools: baseline set ({len(pools)} pools recorded)")
+    else:
+        log(f"newpools: checked {checked} new token(s)")
