@@ -31,6 +31,7 @@ _load_env()
 BSC_RPC            = os.environ.get("BSC_RPC") or DEFAULT_RPC
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
 TELEGRAM_CHAT_ID   = os.environ.get("TELEGRAM_CHAT_ID", "")
+BSCSCAN_API_KEY    = os.environ.get("BSCSCAN_API_KEY", "")   # for funder_watch (BscScan/Etherscan V2)
 DB_PATH            = os.environ.get("MONITOR_DB", os.path.join(ROOT, "data", "cz_monitor.db"))
 
 
@@ -46,6 +47,7 @@ class Config:
         self.watchlist = raw.get("watchlist", [])
         self.signals = raw.get("signals", {})
         self.intervals = raw.get("intervals", {})
+        self.funder_watch = raw.get("funder_watch", {})
         self.labels = {w["addr"].lower(): w.get("label", w["addr"]) for w in self.watchlist}
         self.labels[self.pool] = "PancakeSwap pool"
 

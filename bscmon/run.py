@@ -37,6 +37,7 @@ def main():
         ("market",   jobs.job_market,   iv.get("market", 60)),
         ("balance",  jobs.job_balance,  iv.get("balance", 180)),
         ("transfer", jobs.job_transfers, iv.get("transfer", 60)),
+        ("funder",   jobs.job_funder,   iv.get("funder", 300)),
     ]
 
     if args.once:
@@ -44,6 +45,7 @@ def main():
         jobs.job_market()
         jobs.job_balance()
         jobs.job_transfers(baseline=True)
+        jobs.job_funder()
         log(f"=== done, data in {config.DB_PATH} ===")
         return
 

@@ -34,6 +34,19 @@ def _topic_addr(addr):
     return "0x" + addr.lower().replace("0x", "").rjust(64, "0")
 
 
+def bscscan_txlist(address, api_key, start_block=0):
+    """Normal transactions for an address via Etherscan V2 (chainid=56 = BSC).
+    Returns a list of tx dicts (may be empty); raises on transport error."""
+    url = ("https://api.etherscan.io/v2/api?chainid=56&module=account&action=txlist"
+           f"&address={address}&startblock={start_block}&endblock=99999999"
+           f"&sort=asc&apikey={api_key}")
+    req = urllib.request.Request(url, headers={"User-Agent": UA})
+    with urllib.request.urlopen(req, timeout=25) as r:
+        out = json.load(r)
+    res = out.get("result")
+    return res if isinstance(res, list) else []
+
+
 def block_number():
     return int(_rpc("eth_blockNumber", []), 16)
 

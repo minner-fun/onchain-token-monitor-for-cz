@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
-"""Monitoring jobs for the CZ token. Three signals:
+"""Monitoring jobs for the CZ token. Signals:
   - market:    price / liquidity / 24h-volume, wash ratio (record-only, no push)
   - balance:   watchlist balances; the 70% cold wallet dropping = CRITICAL
   - transfers: name the destination of any cold-wallet / deployer outflow
+  - funder:    network early-warning — large BNB outflows from the Binance-funded paymaster (owner-only)
 """
 import time
 
 from . import config, db, evm, price
-from .notify import emit_event, log
+from .notify import emit_event, log, send_telegram
 
 CFG = config.CFG
 _LOGS_CHUNK = 45     # tiny ranges so even strict public nodes accept eth_getLogs (daemon scans small deltas)
 _LOGS_WARNED = False  # log the "getLogs unavailable" degradation once, not every cycle
+_FUNDER_WARNED = False
 
 
 def job_market():
@@ -108,3 +110,53 @@ def job_transfers(baseline=False):
                 emit_event("deployer_out", sev,
                            f"Deployer sent {h['amount']:,.0f} CZ {where}", addr=addr, tx=h["tx"])
     log("transfers: scan done")
+
+
+# ---------------------------------------------------------------- funder (network early-warning)
+def job_funder():
+    """Watch the Binance-funded paymaster: a LARGE BNB outflow = capital being deployed for a
+    new pump (LP / market-making). Alerts the owner only (not public subscribers). Needs BscScan key."""
+    global _FUNDER_WARNED
+    fw = CFG.funder_watch
+    if not fw or not config.BSCSCAN_API_KEY:
+        if not _FUNDER_WARNED:
+            log("funder: BSCSCAN_API_KEY not set — network early-warning disabled (set it to enable).")
+            _FUNDER_WARNED = True
+        return
+    addr = fw["addr"].lower()
+    min_bnb = float(fw.get("min_bnb", 50))
+    label = fw.get("label", addr[:10] + "…")
+    ck = "funder_block"
+    cur = db.get_cursor(ck)
+    try:
+        if cur is None:                       # first run: baseline, don't replay history
+            hb = evm.block_number()
+            db.set_cursor(ck, hb)
+            log(f"funder: baseline set at block {hb}")
+            return
+        txs = evm.bscscan_txlist(addr, config.BSCSCAN_API_KEY, int(cur) + 1)
+    except Exception as e:
+        log(f"funder: {e}")
+        return
+    maxb, hits = int(cur), 0
+    owner = config.TELEGRAM_CHAT_ID
+    for t in txs:
+        try:
+            maxb = max(maxb, int(t.get("blockNumber", 0)))
+            if t.get("from", "").lower() != addr or str(t.get("isError", "0")) != "0":
+                continue
+            to = t.get("to")
+            bnb = int(t.get("value", "0")) / 1e18
+            if to and bnb >= min_bnb:
+                title = f"💰 {label} 大额出账 {bnb:,.1f} BNB → {to}"
+                detail = ("可能在给新盘铺 LP / 做市资金 —— 盯这个地址,它接下来很可能发 / 拉新币。\n"
+                          f"https://bscscan.com/address/{to}")
+                db.insert_event(int(time.time()), "funder_out", "warn", to, title, detail, t.get("hash"))
+                log(title)
+                if owner:
+                    send_telegram(owner, f"🟠 {title}\n{detail}\ntx https://bscscan.com/tx/{t.get('hash')}")
+                hits += 1
+        except Exception:
+            continue
+    db.set_cursor(ck, maxb)
+    log(f"funder: scanned {len(txs)} txs, {hits} large outflow(s)")
