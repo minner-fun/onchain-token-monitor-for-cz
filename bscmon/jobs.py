@@ -13,7 +13,6 @@ from .notify import emit_event, log, send_telegram
 CFG = config.CFG
 _LOGS_CHUNK = 45     # tiny ranges so even strict public nodes accept eth_getLogs (daemon scans small deltas)
 _LOGS_WARNED = False  # log the "getLogs unavailable" degradation once, not every cycle
-_FUNDER_WARNED = False
 
 
 def job_market():
@@ -114,49 +113,47 @@ def job_transfers(baseline=False):
 
 # ---------------------------------------------------------------- funder (network early-warning)
 def job_funder():
-    """Watch the Binance-funded paymaster: a LARGE BNB outflow = capital being deployed for a
-    new pump (LP / market-making). Alerts the owner only (not public subscribers). Needs BscScan key."""
-    global _FUNDER_WARNED
+    """Watch the Binance-funded paymaster (keyless). A LARGE BNB outflow = capital being
+    deployed for a new pump (LP / market-making). Cheap each cycle (one balance check); only
+    deep-scans blocks when the balance actually drops. Alerts the OWNER ONLY."""
     fw = CFG.funder_watch
-    if not fw or not config.BSCSCAN_API_KEY:
-        if not _FUNDER_WARNED:
-            log("funder: BSCSCAN_API_KEY not set — network early-warning disabled (set it to enable).")
-            _FUNDER_WARNED = True
+    if not fw:
         return
     addr = fw["addr"].lower()
     min_bnb = float(fw.get("min_bnb", 50))
     label = fw.get("label", addr[:10] + "…")
-    ck = "funder_block"
-    cur = db.get_cursor(ck)
     try:
-        if cur is None:                       # first run: baseline, don't replay history
-            hb = evm.block_number()
-            db.set_cursor(ck, hb)
-            log(f"funder: baseline set at block {hb}")
-            return
-        txs = evm.bscscan_txlist(addr, config.BSCSCAN_API_KEY, int(cur) + 1)
+        latest = evm.block_number()
+        bal = evm.get_balance(addr)
     except Exception as e:
         log(f"funder: {e}")
         return
-    maxb, hits = int(cur), 0
-    owner = config.TELEGRAM_CHAT_ID
-    for t in txs:
+    prev_bal, last_blk = db.get_cursor("funder_bal"), db.get_cursor("funder_block")
+    if prev_bal is None or last_blk is None:        # first run: baseline, don't replay history
+        db.set_cursor("funder_bal", bal)
+        db.set_cursor("funder_block", latest)
+        log(f"funder: baseline set (bal {bal:,.0f} BNB, block {latest})")
+        return
+    drop = float(prev_bal) - bal
+    # routine gas-funding drift is only ~6 BNB/cycle; a drop >= min_bnb means a real large
+    # outflow (Binance inflows are infrequent, so masking is rare). Only then do the block-scan.
+    if drop >= min_bnb:                              # a big move happened → scan to find it
+        start = int(last_blk) + 1
+        if latest - start > 300:                     # cap catch-up burst
+            start = latest - 300
         try:
-            maxb = max(maxb, int(t.get("blockNumber", 0)))
-            if t.get("from", "").lower() != addr or str(t.get("isError", "0")) != "0":
-                continue
-            to = t.get("to")
-            bnb = int(t.get("value", "0")) / 1e18
-            if to and bnb >= min_bnb:
-                title = f"💰 {label} 大额出账 {bnb:,.1f} BNB → {to}"
-                detail = ("可能在给新盘铺 LP / 做市资金 —— 盯这个地址,它接下来很可能发 / 拉新币。\n"
-                          f"https://bscscan.com/address/{to}")
-                db.insert_event(int(time.time()), "funder_out", "warn", to, title, detail, t.get("hash"))
-                log(title)
-                if owner:
-                    send_telegram(owner, f"🟠 {title}\n{detail}\ntx https://bscscan.com/tx/{t.get('hash')}")
-                hits += 1
-        except Exception:
-            continue
-    db.set_cursor(ck, maxb)
-    log(f"funder: scanned {len(txs)} txs, {hits} large outflow(s)")
+            hits = evm.large_outflows(addr, start, latest, min_bnb)
+        except Exception as e:
+            log(f"funder scan: {e}"); hits = []
+        owner = config.TELEGRAM_CHAT_ID
+        for h in hits:
+            title = f"💰 {label} 大额出账 {h['bnb']:,.1f} BNB → {h['to']}"
+            detail = ("可能在给新盘铺 LP / 做市资金 —— 盯这个地址,它接下来很可能发 / 拉新币。\n"
+                      f"https://bscscan.com/address/{h['to']}")
+            db.insert_event(int(time.time()), "funder_out", "warn", h["to"], title, detail, h["tx"])
+            log(title)
+            if owner:
+                send_telegram(owner, f"🟠 {title}\n{detail}\ntx https://bscscan.com/tx/{h['tx']}")
+        log(f"funder: balance -{drop:,.0f} BNB → scanned {latest-start+1} blocks, {len(hits)} large outflow(s)")
+    db.set_cursor("funder_bal", bal)
+    db.set_cursor("funder_block", latest)

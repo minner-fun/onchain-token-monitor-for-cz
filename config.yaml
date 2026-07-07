@@ -32,7 +32,7 @@ signals:
 
 # Network early-warning: the Binance-funded paymaster behind this whole token factory.
 # A LARGE BNB outflow from it = capital being deployed for a new pump (LP / market-making).
-# Needs a free BscScan/Etherscan V2 key in BSCSCAN_API_KEY; skipped without one.
+# Keyless: watches the paymaster's balance and only deep-scans blocks when it drops.
 funder_watch:
   addr: "0xe2fc31f816a9b94326492132018c3aecc4a93ae1"
   label: "Paymaster (Binance-funded treasury)"

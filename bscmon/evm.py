@@ -34,17 +34,28 @@ def _topic_addr(addr):
     return "0x" + addr.lower().replace("0x", "").rjust(64, "0")
 
 
-def bscscan_txlist(address, api_key, start_block=0):
-    """Normal transactions for an address via Etherscan V2 (chainid=56 = BSC).
-    Returns a list of tx dicts (may be empty); raises on transport error."""
-    url = ("https://api.etherscan.io/v2/api?chainid=56&module=account&action=txlist"
-           f"&address={address}&startblock={start_block}&endblock=99999999"
-           f"&sort=asc&apikey={api_key}")
-    req = urllib.request.Request(url, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=25) as r:
-        out = json.load(r)
-    res = out.get("result")
-    return res if isinstance(res, list) else []
+def get_balance(addr):
+    """Native BNB balance of an address."""
+    r = _rpc("eth_getBalance", [addr, "latest"])
+    return int(r, 16) / 1e18 if r else 0.0
+
+
+def large_outflows(addr, start_block, end_block, min_bnb):
+    """Scan blocks (start_block..end_block] for native transfers FROM addr >= min_bnb BNB.
+    Returns [{to, bnb, tx, block}]. Best-effort (skips blocks that error)."""
+    addr = addr.lower()
+    out = []
+    for b in range(start_block, end_block + 1):
+        try:
+            blk = _rpc("eth_getBlockByNumber", [hex(b), True])
+        except Exception:
+            continue
+        for t in (blk.get("transactions") if blk else []) or []:
+            if (t.get("from") or "").lower() == addr and t.get("to"):
+                bnb = int(t.get("value", "0x0"), 16) / 1e18
+                if bnb >= min_bnb:
+                    out.append({"to": t["to"], "bnb": bnb, "tx": t.get("hash"), "block": b})
+    return out
 
 
 def block_number():
