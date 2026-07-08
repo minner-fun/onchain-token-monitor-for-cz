@@ -141,4 +141,4 @@ BSC 链上(Dune:`erc20_bnb.evt_transfer`、`dex.trades`)· DexScreener · GoPlus
 
 - 🔍 **[服务与定价 · Services & Pricing](https://cz.minner.fun/services.html)** — 快速体检 $200 / 完整取证 $500 起 / 24/7 监控 $250/月
 - 🇬🇧 [Full CZ report in English](https://cz.minner.fun/report-en.html)(作品集样品)
-- Portfolio: [minner.fun](https://minner.fun/) · GitHub: [github.com/minner-fun](https://github.com/minner-fun) · 询价: minner.fun@gmail.com
+- Portfolio: [minner.fun](https://minner.fun/) · GitHub: [github.com/minner-fun](https://github.com/minner-fun) · 询价: TG [@MinnerMin](https://t.me/MinnerMin) / minner.fun@gmail.com
