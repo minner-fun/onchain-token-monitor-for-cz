@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token Forensics &amp; 24/7 Monitoring — minner.fun</title>
+<meta name="description" content="Evidence-graded on-chain forensic reports and 24/7 whale-wallet monitoring for BSC and EVM tokens. Who controls the supply? Is the volume real? Where is the guillotine? From $200.">
+<style>
+  :root{
+    --bg:#0b0e13; --card:#141922; --card2:#1a212c; --line:#232c39;
+    --text:#e8eaed; --dim:#8b929e; --green:#3fd17a; --red:#ff5c5c;
+    --orange:#ffa53d; --gold:#d4a93f; --blue:#5b9dff; --teal:#57c8b0;
+    --mono:'SF Mono','JetBrains Mono','Consolas',monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;
+    line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:900px;margin:0 auto;padding:24px 18px 70px}
+  header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:6px 0 18px;border-bottom:1px solid var(--line);margin-bottom:20px}
+  .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#5b9dff,#57c8b0);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+  h1{font-size:21px;margin:0;font-weight:700}
+  .sub{color:var(--dim);font-size:12.5px;font-family:var(--mono)}
+  .hero{background:linear-gradient(180deg,#1a212c,#141922);border:1px solid var(--line);border-radius:16px;padding:24px;margin:14px 0 24px}
+  .hero h2{margin:0 0 10px;font-size:clamp(20px,4.5vw,28px);line-height:1.25;border:none;padding:0}
+  .hero p{color:var(--dim);font-size:14.5px;margin:8px 0}
+  .hero b{color:var(--text)}
+  h2{font-size:17px;font-weight:700;margin:32px 0 12px}
+  .num,code{font-family:var(--mono)}
+  code{font-size:.9em;background:var(--card2);padding:1px 5px;border-radius:5px;word-break:break-all}
+  .tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:760px){.tiers{grid-template-columns:1fr}}
+  .tier{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;display:flex;flex-direction:column}
+  .tier.feature{border-color:rgba(212,169,63,.5);background:linear-gradient(180deg,#1c2130,#141922);position:relative}
+  .tier .pop{position:absolute;top:-10px;right:14px;background:var(--gold);color:#0b0e13;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px}
+  .tier h3{margin:0;font-size:15px;font-weight:700}
+  .tier .price{font-size:28px;font-weight:750;margin:8px 0 2px;font-family:var(--mono)}
+  .tier .price small{font-size:13px;color:var(--dim);font-weight:500;font-family:inherit}
+  .tier .turn{color:var(--teal);font-size:12px;font-family:var(--mono);margin-bottom:10px}
+  .tier ul{margin:0 0 14px;padding-left:18px;color:var(--dim);font-size:13px;flex:1}
+  .tier li{margin:6px 0}
+  .tier li b{color:var(--text)}
+  .btn{display:block;text-align:center;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:10px;font-size:13.5px;font-weight:650;color:var(--text)}
+  .tier.feature .btn{background:rgba(212,169,63,.15);border-color:rgba(212,169,63,.4);color:var(--gold)}
+  .btn:hover{text-decoration:none;filter:brightness(1.15)}
+  .proof{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  @media(max-width:760px){.proof{grid-template-columns:1fr}}
+  .pcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .pcard .k{color:var(--dim);font-size:12px;margin-bottom:4px}
+  .pcard .v{font-size:15px;font-weight:650;line-height:1.4}
+  .pcard .v a{color:var(--text)}
+  .pcard .n2{font-size:12.5px;color:var(--dim);margin-top:6px}
+  .tag{font-size:11px;padding:2px 7px;border-radius:6px;font-family:var(--mono);white-space:nowrap}
+  .tag.v{background:rgba(63,209,122,.13);color:var(--green)}
+  .tag.i{background:rgba(255,165,61,.13);color:var(--orange)}
+  .tag.u{background:rgba(139,146,158,.15);color:var(--dim)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:12px 0}
+  .card p{margin:8px 0;font-size:13.5px}
+  .card p.dim{color:var(--dim)}
+  .faq dt{font-weight:650;font-size:13.5px;margin-top:14px}
+  .faq dd{margin:4px 0 0;color:var(--dim);font-size:13px}
+  .contact{background:linear-gradient(180deg,#1a212c,#141922);border:1px solid rgba(91,157,255,.4);border-radius:16px;padding:22px;margin:28px 0;text-align:center}
+  .contact .big{font-size:18px;font-weight:700;margin-bottom:6px}
+  .cta{display:inline-block;margin:6px 6px 0;background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:9px 15px;font-size:13.5px;color:var(--text);font-weight:600}
+  .cta.hot{background:rgba(63,209,122,.13);border-color:rgba(63,209,122,.35);color:var(--green)}
+  footer{margin-top:36px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim);font-size:12px}
+  .zh{border-top:1px dashed var(--line);margin-top:40px;padding-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">🔍</div>
+  <div>
+    <h1>Token Forensics &amp; 24/7 Monitoring</h1>
+    <div class="sub">minner.fun · BSC &amp; EVM chains · <a href="#zh">中文</a></div>
+  </div>
+</header>
+
+<div class="hero">
+  <h2>Before you ape in — or while you're stuck in — know three things:<br>who controls the supply, whether the volume is real, and where the guillotine hangs.</h2>
+  <p>Contract scanners tell you the tax is 0% and the LP is burned. They don't tell you that <b>70% of the supply sits in one wallet that locked up 51 seconds after launch</b>, or that the "$50M daily volume" is one bot doing 61,000 round-trips. That's what I look for — with tamper-proof on-chain data, and every claim graded <span class="tag v">✅ VERIFIED</span> / <span class="tag i">🔶 INFERRED</span> / <span class="tag u">⛔ UNKNOWABLE</span>.</p>
+</div>
+
+<h2>Proof of work — judge the sample, not the pitch</h2>
+<div class="proof">
+  <div class="pcard">
+    <div class="k">Full forensic report (sample)</div>
+    <div class="v"><a href="report-en.html">CZ "The Final Form Bull" — 10 sections</a></div>
+    <div class="n2">70% guillotine found in hours; wash fleet mapped; $82M funding pipeline traced; 2 public corrections kept for honesty. <a href="https://github.com/minner-fun/onchain-token-monitor-for-cz/blob/main/docs/%E6%8A%A5%E5%91%8A-CZ-The-Final-Form-Bull.md">中文原版</a></div>
+  </div>
+  <div class="pcard">
+    <div class="k">Live monitoring (sample)</div>
+    <div class="v"><a href="index.html">cz.minner.fun — real-time dashboard</a></div>
+    <div class="n2">Cold-wallet balance, supply map, wash multiple, live trade feed, 42-token factory survival — auto-refreshing, plus a Telegram alert bot with public subscribers.</div>
+  </div>
+  <div class="pcard">
+    <div class="k">Research behind the signals</div>
+    <div class="v"><a href="https://github.com/minner-fun/four_meme">four.meme base-rate study</a></div>
+    <div class="n2">1.55M launches → graduation funnel → signal validation on 620+ graduated tokens with pre-registered confirmatory tests. My risk flags carry measured hit rates, not vibes.</div>
+  </div>
+</div>
+
+<h2>Services &amp; pricing</h2>
+<div class="tiers">
+
+  <div class="tier">
+    <h3>⚡ Quick Screen</h3>
+    <div class="price">$200 <small>/ token</small></div>
+    <div class="turn">⏱ 24–48 h turnaround</div>
+    <ul>
+      <li><b>Supply map</b>: top holders, cluster labeling, % in fresh/linked wallets, LP status</li>
+      <li><b>Volume authenticity</b>: turnover-to-liquidity, wash symmetry, top signer autopsy</li>
+      <li><b>Deployer history</b>: prior launches, survival rate (token-factory detection)</li>
+      <li><b>Funding source</b> of the deployer, one hop up</li>
+      <li>Red / yellow / green call with the evidence, ~2 pages</li>
+    </ul>
+    <a class="btn" href="mailto:xiaoqideguge@gmail.com?subject=Quick%20Screen%20request&body=Token%20contract%20address%3A%0AChain%3A%0AWhat%20prompted%20the%20request%3A">Request a screen →</a>
+  </div>
+
+  <div class="tier feature">
+    <div class="pop">SAMPLE ABOVE</div>
+    <h3>📋 Full Forensic Report</h3>
+    <div class="price">from $500</div>
+    <div class="turn">⏱ 3–5 days</div>
+    <ul>
+      <li>Everything in Quick Screen, plus:</li>
+      <li><b>Money-flow tracing</b>: funding pipeline upstream, proceeds downstream, CEX in/out</li>
+      <li><b>Operator cluster mapping</b>: executor/inventory wallet separation, distribution families</li>
+      <li><b>Cost vs. paper-profit ledger</b>: what the operator actually spent and holds</li>
+      <li><b>Timeline reconstruction</b> of every key move, block-level</li>
+      <li>Full address appendix — every claim independently verifiable</li>
+      <li>Written like the <a href="report-en.html">CZ sample</a>: evidence-graded, corrections kept public</li>
+    </ul>
+    <a class="btn" href="mailto:xiaoqideguge@gmail.com?subject=Full%20Forensic%20Report%20request&body=Token%20contract%20address%3A%0AChain%3A%0AYour%20situation%20(entering%20%2F%20holding%20%2F%20community%20%2F%20project%20team)%3A%0ASpecific%20questions%20you%20want%20answered%3A">Commission a report →</a>
+  </div>
+
+  <div class="tier">
+    <h3>📡 24/7 Monitoring</h3>
+    <div class="price">$250 <small>/ token / month</small></div>
+    <div class="turn">⏱ live in 2–3 days</div>
+    <ul>
+      <li><b>Whale/cold-wallet movement alerts</b> → your Telegram, within minutes</li>
+      <li><b>Deployer &amp; cluster wallets</b> watched for distribution moves</li>
+      <li><b>Wash-multiple tracking</b> (volume ÷ liquidity) and anomaly flags</li>
+      <li>Optional <b>public dashboard page</b> like <a href="index.html">cz.minner.fun</a> for your community</li>
+      <li>Runs on dedicated server infra; you get the alert bot, I keep it alive</li>
+      <li>Natural follow-on to a report: "now watch it for me"</li>
+    </ul>
+    <a class="btn" href="mailto:xiaoqideguge@gmail.com?subject=Monitoring%20setup&body=Token%20contract%20address%3A%0AChain%3A%0AWallets%20or%20events%20you%20care%20about%20most%3A">Set up monitoring →</a>
+  </div>
+
+</div>
+<p class="dim" style="color:var(--dim);font-size:12.5px">Custom scopes (multi-token portfolios, dispute/recovery evidence packages, transparency reports commissioned by project teams) — describe what you need and I'll quote. First-time clients: 50% upfront in USDT/USDC (BEP-20/TRC-20/ERC-20), balance on delivery.</p>
+
+<h2>Why this is different from a scanner or a paid group</h2>
+<div class="card">
+  <p>🔬 <b>Method over vibes.</b> Every conclusion is graded <span class="tag v">✅ VERIFIED</span> (on-chain provable, reproducible query) / <span class="tag i">🔶 INFERRED</span> (behavioral, high confidence, stated as such) / <span class="tag u">⛔ UNKNOWABLE</span> (CEX internals, identity, intent — I will tell you what cannot be known, which is exactly what sellers of certainty won't).</p>
+  <p>📊 <b>Base rates, not anecdotes.</b> Behind the risk flags sits a study of 1.55M token launches and signal validation on 620+ graduated tokens with pre-registered tests. When I flag "dispersed natural pool" or "post-graduation cluster funding", those patterns have measured hit rates.</p>
+  <p>🧾 <b>Honesty as a feature.</b> The CZ sample report contains two public corrections where early conclusions overreached. Ask yourself when you last saw a paid caller correct himself.</p>
+  <p>⚙️ <b>You get the machinery, not just the PDF.</b> Reports ship with reproducible queries and open-source check scripts; monitoring ships as a running bot. Verify everything without trusting me.</p>
+</div>
+
+<h2>FAQ</h2>
+<div class="card faq">
+  <dl>
+    <dt>Who typically hires this?</dt>
+    <dd>Buyers doing due diligence before a meaningful entry · communities that are stuck in a token and want to know what the operator is doing · project teams who want a third-party transparency report · researchers and media who need the money flow mapped.</dd>
+    <dt>Which chains?</dt>
+    <dd>BSC is home turf; Ethereum and other EVM chains work with the same toolchain. Non-EVM — ask first.</dd>
+    <dt>Can you tell me if it will pump?</dt>
+    <dd>No, and be suspicious of anyone who says yes. I map structure and risk: who holds what, what they've done, what to watch. The one thing structure reliably predicts is <i>how it can hurt you</i>.</dd>
+    <dt>Confidentiality?</dt>
+    <dd>Commissioned reports are yours; I don't publish them without your consent. Public samples (like CZ) are self-initiated.</dd>
+    <dt>Payment</dt>
+    <dd>USDT / USDC. 50% upfront for first-time clients, balance on delivery. Monitoring bills monthly, cancel anytime.</dd>
+  </dl>
+</div>
+
+<div class="contact" id="contact">
+  <div class="big">Have a token address and a question?</div>
+  <p style="color:var(--dim);font-size:13.5px;margin:6px 0 10px">Send the contract address and one sentence on your situation. You'll get a scope + quote within 24h — no charge for the ask.</p>
+  <a class="cta hot" href="mailto:xiaoqideguge@gmail.com?subject=Token%20forensics%20inquiry">✉️ xiaoqideguge@gmail.com</a>
+  <a class="cta" href="https://github.com/minner-fun">💻 github.com/minner-fun</a>
+  <a class="cta" href="https://minner.fun">🏠 minner.fun</a>
+</div>
+
+<!-- ============ 中文 ============ -->
+<div class="zh" id="zh">
+  <h2>中文 · 代币取证与 24/7 监控服务</h2>
+  <div class="card">
+    <p><b>在你冲进去之前——或者被套在里面的时候——搞清楚三件事:谁在控盘、量是不是真的、铡刀悬在哪。</b></p>
+    <p class="dim">合约扫描器只会告诉你"0 税、LP 已烧、权限已弃"——它不会告诉你 70% 的筹码在发行 51 秒后锁进了同一个钱包,也不会告诉你"5000 万美元日成交"是一个机器人对倒了 6.1 万笔刷出来的。我的报告用不可篡改的链上数据回答这些问题,每条结论标注证据等级(✅ 实证 / 🔶 推断 / ⛔ 不可知),全部地址可自行核验。样品见 <a href="https://github.com/minner-fun/onchain-token-monitor-for-cz/blob/main/docs/%E6%8A%A5%E5%91%8A-CZ-The-Final-Form-Bull.md">CZ 取证报告(中文)</a> 和 <a href="index.html">实时监控面板</a>。</p>
+    <p><b>三档服务:</b></p>
+    <p>⚡ <b>快速体检 $200/币</b>(24–48 小时):筹码分布与集群标注、刷量检测、deployer 前科、资金来源一跳、红黄绿结论。<br>
+    📋 <b>完整取证报告 $500 起</b>(3–5 天):资金全链路溯源、操盘集群画像(执行器/库存分离)、成本 vs 浮盈账本、区块级时间线、全地址附录——CZ 报告同规格。<br>
+    📡 <b>24/7 常驻监控 $250/币/月</b>:巨鲸/冷钱包异动分钟级推送 Telegram、deployer 出货监控、刷量倍数跟踪,可选配社区公开面板(如 cz.minner.fun)。</p>
+    <p class="dim">项目方透明度背书、多币组合、纠纷取证等定制需求可谈。首次合作 5 成定金(USDT/USDC),交付付尾款。发合约地址 + 一句话说明情况,24 小时内回复方案与报价,询价免费:<a href="mailto:xiaoqideguge@gmail.com">xiaoqideguge@gmail.com</a></p>
+  </div>
+</div>
+
+<footer>
+  <div>
+    <a class="cta" href="index.html">📊 CZ live dashboard</a>
+    <a class="cta" href="report-en.html">📋 Sample report (EN)</a>
+    <a class="cta" href="https://github.com/minner-fun/onchain-token-monitor-for-cz">💻 Open-source monitor</a>
+  </div>
+  <p style="margin-top:12px">Reports describe on-chain behavior and timelines. They are not legal characterizations of any party and not investment advice. 报告只陈述链上行为与时间线,不构成法律定性或投资建议。</p>
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>On-Chain Forensic Report · CZ "The Final Form Bull" (BSC)</title>
+<meta name="description" content="Full on-chain forensic investigation of the BSC token CZ: 70% supply locked in a dormant cold wallet 51 seconds after launch, $110M wash-traded volume on $860K liquidity, a 42-token factory, and the funding pipeline behind it. Every claim evidence-graded and verifiable.">
+<style>
+  :root{
+    --bg:#0b0e13; --card:#141922; --card2:#1a212c; --line:#232c39;
+    --text:#e8eaed; --dim:#8b929e; --green:#3fd17a; --red:#ff5c5c;
+    --orange:#ffa53d; --gold:#d4a93f; --blue:#5b9dff; --teal:#57c8b0;
+    --mono:'SF Mono','JetBrains Mono','Consolas',monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    line-height:1.62;-webkit-font-smoothing:antialiased}
+  a{color:var(--blue);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 18px 70px}
+  header{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:6px 0 18px;border-bottom:1px solid var(--line);margin-bottom:8px}
+  .logo{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#d4a93f,#ff5c5c);display:flex;align-items:center;justify-content:center;font-size:20px;flex:none}
+  h1{font-size:21px;margin:0;font-weight:700;line-height:1.3}
+  .sub{color:var(--dim);font-size:12.5px;font-family:var(--mono)}
+  .badge{margin-left:auto;background:rgba(255,92,92,.13);color:var(--red);border:1px solid rgba(255,92,92,.35);
+    padding:5px 11px;border-radius:999px;font-size:12.5px;font-weight:650;white-space:nowrap}
+  .meta{color:var(--dim);font-size:13px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:16px 0}
+  .meta code{font-family:var(--mono);color:var(--text);font-size:12px;word-break:break-all}
+  h2{font-size:17px;font-weight:700;margin:34px 0 10px;padding-top:10px}
+  h3{font-size:14.5px;font-weight:650;margin:22px 0 8px;color:var(--gold)}
+  p{margin:10px 0}
+  .num,code{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  code{font-size:.9em;background:var(--card2);padding:1px 5px;border-radius:5px;word-break:break-all}
+  .tag{font-size:11px;padding:2px 7px;border-radius:6px;font-family:var(--mono);white-space:nowrap}
+  .tag.v{background:rgba(63,209,122,.13);color:var(--green)}
+  .tag.i{background:rgba(255,165,61,.13);color:var(--orange)}
+  .tag.u{background:rgba(139,146,158,.15);color:var(--dim)}
+  .tldr{background:linear-gradient(180deg,#1a212c,#141922);border:1px solid var(--line);border-radius:16px;padding:20px 22px;margin:18px 0}
+  .tldr .lead{color:var(--red);font-weight:700;font-size:12.5px;letter-spacing:.4px;margin-bottom:8px;text-transform:uppercase}
+  blockquote{margin:14px 0;padding:12px 16px;border-left:3px solid var(--gold);background:var(--card);border-radius:0 10px 10px 0;color:var(--text)}
+  .correction{border-left-color:var(--orange);}
+  .correction .clabel{color:var(--orange);font-weight:700;font-size:12px;letter-spacing:.3px}
+  .tablewrap{overflow-x:auto;margin:12px 0}
+  table{width:100%;border-collapse:collapse;font-size:13px;min-width:480px}
+  td,th{padding:8px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{color:var(--dim);font-weight:500;font-size:12px}
+  td.n{font-family:var(--mono);white-space:nowrap}
+  pre{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;overflow-x:auto;font-size:12px;line-height:1.5;font-family:var(--mono)}
+  .note{color:var(--dim);font-size:12.5px}
+  .cta{display:inline-block;margin:4px 8px 4px 0;background:var(--card2);border:1px solid var(--line);border-radius:9px;padding:8px 13px;font-size:13px;color:var(--text)}
+  .cta.hot{background:rgba(63,209,122,.13);border-color:rgba(63,209,122,.35);color:var(--green);font-weight:650}
+  .hire{background:linear-gradient(180deg,#1a212c,#141922);border:1px solid rgba(212,169,63,.4);border-radius:16px;padding:20px 22px;margin:30px 0}
+  footer{margin-top:38px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim);font-size:12px}
+  ul{margin:8px 0;padding-left:22px}
+  li{margin:5px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="logo">🔪</div>
+  <div>
+    <h1>On-Chain Forensic Report · CZ "The Final Form Bull"</h1>
+    <div class="sub">BSC · 0x7a848a5a…504444 · published 2026-07 · <a href="https://github.com/minner-fun/onchain-token-monitor-for-cz/blob/main/docs/%E6%8A%A5%E5%91%8A-CZ-The-Final-Form-Bull.md">中文原版</a></div>
+  </div>
+  <div class="badge">🔴 Risk: HIGH</div>
+</header>
+
+<div class="meta">
+  <b>Subject:</b> BSC (BNB Chain) token <b>CZ</b> ("The Final Form Bull") · <code>0x7a848a5a8169aa6a2f603d056a749f924f504444</code><br>
+  <b>Data cutoff:</b> 2026-07-06 (token was 3 days old) · <b>Live dashboard:</b> <a href="https://cz.minner.fun/">cz.minner.fun</a><br>
+  <b>Method:</b> read-only, tamper-proof on-chain data. Every claim carries an evidence grade:
+  <span class="tag v">✅ VERIFIED</span> on-chain provable · <span class="tag i">🔶 INFERRED</span> high-confidence behavioral inference · <span class="tag u">⛔ UNKNOWABLE</span> not visible on-chain.<br>
+  <span class="note">This report describes on-chain behavior and timelines only. It is not a legal characterization of any party and not investment advice.</span>
+</div>
+
+<div class="tldr">
+  <div class="lead">TL;DR</div>
+  <p><b>This is not even a standalone project.</b> CZ was launched through <a href="https://four.meme">four.meme</a> (a public BSC token launchpad; the <code>…4444</code> vanity suffix is its default), and upstream sits a Binance-fed "BNB faucet" <code>0xe2fc…</code> that received ~$82M from Binance and fanned it out, one-way, to 63,602 addresses — shared plumbing used by a whole population of token deployers. CZ is one pool that an operator picked out of this public infrastructure and pumped. The genuinely private, coordinated operation is small: <b>CZ's deployer + a 70% cold wallet + a wash-trading fleet.</b></p>
+  <p><b>The CZ pool itself:</b> within <b>51 seconds</b> of launch, one address locked <b>70% of total supply (700M tokens)</b> into a cold wallet that has never moved a single token since. Those 700M were minted for free; three days of wash-trading marked the price up ~<b>260×</b>, putting the bag at ~<b>$28.5M</b> — while the operator's verifiable cash outlay is approximately <b>zero</b> (~$10K of seed liquidity, recouped the same day by selling tokens). <b>$110M of "volume" was manufactured on top of $860K of liquidity.</b> Free chips + fake volume: all the downside is on the buy side, under a 70% guillotine.</p>
+</div>
+
+<h2>1. Token basics <span class="tag v">✅ VERIFIED</span></h2>
+<div class="tablewrap"><table>
+  <tr><th>Item</th><th>Value</th></tr>
+  <tr><td>Name / Symbol</td><td>The Final Form Bull / <b>CZ</b></td></tr>
+  <tr><td>Chain</td><td>BSC (BNB Chain)</td></tr>
+  <tr><td>Contract</td><td class="n">0x7a848a5a8169aa6a2f603d056a749f924f504444</td></tr>
+  <tr><td>Total supply</td><td>1,000,000,000 (fixed, non-mintable)</td></tr>
+  <tr><td>Launch</td><td><b>2026-07-03 17:39 UTC</b></td></tr>
+  <tr><td>Holders</td><td>12,524</td></tr>
+  <tr><td>Launch price → price at cutoff</td><td>$0.000155 → ≈$0.041 (<b>~260× in 3 days</b>, wash-trade driven)</td></tr>
+  <tr><td>FDV at cutoff</td><td>≈$41M</td></tr>
+  <tr><td>Main pool</td><td class="n">PancakeSwap V2 0xd55fa2c5…45b2 · liquidity ≈$860K</td></tr>
+  <tr><td>Contract safety surface</td><td>Ownership renounced (0x0) · non-mintable · not a honeypot · 0% tax · verified source · 99.2% of LP burned</td></tr>
+</table></div>
+<blockquote>A fully green contract-safety scan (renounced / 0 tax / LP burned) is exactly what makes people comfortable — but <b>the real risk is not in contract permissions. It is in supply distribution and trade structure.</b> That is what the rest of this report is about.</blockquote>
+
+<h2>2. Issuance: 74% went straight into the deployer's pocket <span class="tag v">✅ VERIFIED</span></h2>
+<p>Everything happened within the launch transaction / the same minute (2026-07-03 17:39:18–27):</p>
+<pre>Mint 1B → genesis wallet 0x757eba15… → launch contract 0x5c952063… splits in one step:
+    ├─ 743,379,614 (74.34%) → deployer 0x1bff8f0ade179dfa1beddb54fa5d7d6dc814191a
+    ├─ 200,000,000 (20.00%) → PancakeSwap pool 0xd55fa2c5… (initial LP)
+    └─  56,620,386 ( 5.66%) → 4 EOAs (likely team / market-making allocations)</pre>
+<p><b>The deployer <code>0x1bff8f0a…4191a</code> held 74.34% of supply from second one.</b> Only 20% was placed in the pool as liquidity.</p>
+
+<h2>3. The 70% guillotine: locked in a cold wallet 51 seconds after launch, never moved <span class="tag v">✅ VERIFIED</span></h2>
+<pre>2026-07-03 17:40:09  (51s after genesis)
+deployer 0x1bff8f0a…4191a ──700,000,000 (70%)──▶ cold wallet 0x28816c4c4792467390c90e5b426f198570e29307</pre>
+<ul>
+  <li>That cold wallet is now the <b>#1 holder with 70% of total supply</b>.</li>
+  <li><b>Its outgoing transfer count is zero — not a single token has ever left.</b> A silent mega-position.</li>
+  <li>It is a plain EOA. <b>No timelock, no vesting contract.</b> "Hasn't dumped" is a fact; "can't dump" is not.</li>
+</ul>
+<blockquote>This is the single most important fact in this report: <b>70% of the supply sits in one freely-spendable address, hanging over the entire market.</b> The moment it moves — to the pool, to an exchange, or split into fresh wallets — that is the highest-priority exit signal. (It is monitored 24/7; see the <a href="https://cz.minner.fun/">live dashboard</a>.)</blockquote>
+
+<h2>4. Insiders were already selling <span class="tag v">✅ VERIFIED</span></h2>
+<p>The deployer's remaining ~4.3% was drip-fed into the pool from day one:</p>
+<pre>deployer 0x1bff8f0a… ──▶ PancakeSwap pool: 5 transfers, 43,384,673 tokens (≈4.34%)
+window: 2026-07-03 17:40 → 2026-07-05 02:51</pre>
+<p>Transferring tokens directly into the pair address is a standard way to supply/liquidate inventory. <b>The deployer locked 70% to build a "we won't dump" narrative — while continuously selling from the small bag.</b></p>
+<h3>The 4 genesis EOAs: fully liquidated within days <span class="tag v">✅</span></h3>
+<div class="tablewrap"><table>
+  <tr><th>Address</th><th>Received</th><th>Holds now</th><th>Where it went</th></tr>
+  <tr><td class="n">0xd7799add…511f</td><td class="n">29.48M</td><td class="n"><b>0</b></td><td>4 transfers, <b>all straight into the pool</b></td></tr>
+  <tr><td class="n">0x56f03b85…28e0</td><td class="n">24.65M</td><td class="n"><b>0</b></td><td>2 transfers, <b>all straight into the pool</b></td></tr>
+  <tr><td class="n">0x552ab943…8786</td><td class="n">2.27M</td><td class="n"><b>0</b></td><td>8 transfers out via router/intermediaries — emptied</td></tr>
+  <tr><td class="n">0xf8ebaab7…e2b8</td><td class="n">0.22M</td><td class="n"><b>0</b></td><td>6 transfers, <b>all into the pool</b></td></tr>
+</table></div>
+<p>≈<b>54.35M dumped directly into the PancakeSwap pool</b> (= sold). The 5.66% "team/MM" allocation is fully gone.</p>
+<p><b>Net insider picture:</b> apart from the untouched 70% cold wallet, every movable insider bag (deployer 4.3% + these EOAs 5.7% ≈ 10% of supply) was sold into the market. But note — <b>these sales happened at the launch-day floor ($0.000155) and recovered only ~$15K in total. The 260× pump came after they finished selling.</b> The full cost-vs-paper-profit ledger is in section 6. The only — and decisive — overhang has always been the 70% guillotine.</p>
+
+<h2>5. Supply map: 70% frozen, pool inventory down to 0.9% <span class="tag v">✅ VERIFIED, live balances</span></h2>
+<p><b>① How it was allocated at issuance (static):</b></p>
+<div class="tablewrap"><table>
+  <tr><th>Destination</th><th>Amount</th><th>Share</th></tr>
+  <tr><td>Deployer (→ 700M cold wallet + 43M sold)</td><td class="n">743.4M</td><td class="n">74.3%</td></tr>
+  <tr><td>Initial LP</td><td class="n">200.0M</td><td class="n">20.0%</td></tr>
+  <tr><td>4 genesis EOAs (fully liquidated)</td><td class="n">56.6M</td><td class="n">5.7%</td></tr>
+</table></div>
+<p><b>② Where the chips are now (live on-chain balances, 2026-07-06):</b></p>
+<div class="tablewrap"><table>
+  <tr><th>Location</th><th>Amount</th><th>Share</th><th>Status</th></tr>
+  <tr><td>Cold wallet (guillotine)</td><td class="n">700.0M</td><td class="n"><b>70.0%</b></td><td>✅ dormant, zero moved, freely spendable</td></tr>
+  <tr><td>Main pool CZ inventory</td><td class="n">9.5M</td><td class="n"><b>0.9%</b></td><td>current trading depth / sell-side inventory</td></tr>
+  <tr><td>External (retail + bots)</td><td class="n">290.5M</td><td class="n"><b>29.1%</b></td><td>circulating outside</td></tr>
+</table></div>
+<p><b>Key counter-intuitive point:</b> the initial LP was 20% (200M), but the pool now holds only 0.9% (&lt;10M). Three days of net buying pulled ~95% of the pool's CZ out (CZ out, BNB in, price marked up) — so most of that 200M LP has become external float. <b>Real external float is ~29%, not "locked in LP".</b></p>
+<blockquote class="correction"><span class="clabel">⚠ CORRECTION (kept for honesty)</span><br>An earlier version estimated free float at ~10% assuming "LP still holds 200M". That was too low; corrected to ~29% using live balances.</blockquote>
+<p>That 29% deserves a discount when read as sell pressure: a large share of it was high-frequency wash/MM inventory churn (section 8), not long-term retail bags — though see the ★ correction in section 7, which revises this further. And pool depth is only ~$860K: <b>even a small fraction of external chips actually selling would crush a pool this shallow.</b> The largest, most certain pressure is always the 70% cold wallet — one move equals dozens of times the current pool depth.</p>
+
+<h2>6. Cost vs. paper profit: near-zero real investment, ~$28.5M of free chips <span class="tag v">✅ VERIFIED</span> + <span class="tag u">⛔ boundaries</span></h2>
+<h3>Price: 260× in 3 days — and insiders sold at the floor</h3>
+<div class="tablewrap"><table>
+  <tr><th>Date</th><th>CZ VWAP</th><th></th></tr>
+  <tr><td>07-03 (launch)</td><td class="n"><b>$0.000155</b></td><td>insiders' ~98M almost entirely sold this day</td></tr>
+  <tr><td>07-04</td><td class="n">$0.0062</td><td></td></tr>
+  <tr><td>07-05</td><td class="n">$0.0399</td><td></td></tr>
+  <tr><td>07-06</td><td class="n">$0.0407</td><td>cutoff price, ≈<b>260×</b> vs. launch</td></tr>
+</table></div>
+<p>Valuing each sale at its execution-time price, the deployer + 4 EOAs dumped ~98M CZ for a combined <b>≈$15,000</b>:</p>
+<div class="tablewrap"><table>
+  <tr><th>Address</th><th>CZ into pool</th><th>Proceeds at market</th></tr>
+  <tr><td>Deployer</td><td class="n">43.4M</td><td class="n">$6,930</td></tr>
+  <tr><td class="n">EOA 0xd77…</td><td class="n">29.5M</td><td class="n">$4,572</td></tr>
+  <tr><td class="n">EOA 0x56f…</td><td class="n">24.7M</td><td class="n">$3,824</td></tr>
+  <tr><td class="n">EOA 0xf8e…</td><td class="n">0.2M</td><td class="n">$35</td></tr>
+  <tr><td><b>Total</b></td><td class="n"><b>~98M (10%)</b></td><td class="n"><b>≈$15,000</b></td></tr>
+</table></div>
+<p>So the "insider selling" was <b>not a top exit — it reads as seeding liquidity / recouping costs.</b> The 260× pump happened after they were done; the trackable insider addresses did not capture that move.</p>
+<h3>Verifiable real cash outlay ≈ zero</h3>
+<div class="tablewrap"><table>
+  <tr><th>Item</th><th>Amount</th><th>Note</th></tr>
+  <tr><td>Initial liquidity (BNB side)</td><td class="n"><b>17.64 BNB ≈ $10,000</b></td><td>injected via PancakeSwap router at pool creation; 99.2% of LP burned → locked</td></tr>
+  <tr><td>LP's CZ side</td><td class="n">200M CZ</td><td><b>minted free, zero cash cost</b></td></tr>
+  <tr><td>Gas</td><td class="n">tens of dollars</td><td>negligible</td></tr>
+  <tr><td>Day-one token sales</td><td class="n">−$15,000</td><td>recouped from early buyers' BNB</td></tr>
+  <tr><td><b>= Net cash in</b></td><td class="n"><b>≈ 0 (slightly positive)</b></td><td></td></tr>
+</table></div>
+<p>And the 700M (70%) was minted for free — at the cutoff price it marks at ≈<b>$28.5M</b>, untouched, at near-zero cost basis.</p>
+<blockquote><b>The honest ledger:</b> the operator spent almost no real money — free mint + a ~$10K shallow pool + wash-traded price marking — and now sits on a zero-cost 70% bag with ~$28.5M of paper profit. <b>All the downside risk is on the buyers' side.</b></blockquote>
+<h3>⛔ What cannot be counted (honest boundary)</h3>
+<ul>
+  <li><b>The BNB used by wash/MM/support wallets</b> (e.g. the +$6.56M net-buy support wallet): cannot be attributed to the operator (address ≠ identity), wash net ≈ 0, and that wallet holds 0 CZ now. Not counted.</li>
+  <li><b>Off-chain spend</b>: marketing, KOLs, paid groups, CEX listing fees — invisible on-chain.</li>
+</ul>
+
+<h2>7. Behind the scenes: a launchpad, a Binance-fed faucet, and one pool that got picked <span class="tag v">✅</span> + <span class="tag i">🔶</span></h2>
+<h3>The deployer is a token factory: 42 tokens in 6 days, almost all <code>…4444</code></h3>
+<p><code>0x1bff8f0a…4191a</code> is not "CZ's team". It is a production line: between 2026-07-01 and 07-06 it minted <b>42 tokens</b>, all 1B supply, contract addresses almost all ending in <code>4444</code>. CZ was simply <b>product #3</b>, shipped on July 3rd:</p>
+<div class="tablewrap"><table>
+  <tr><th>Date</th><th>New tokens that day</th></tr>
+  <tr><td>07-01</td><td class="n">1</td></tr>
+  <tr><td>07-02</td><td class="n">1</td></tr>
+  <tr><td>07-03</td><td class="n"><b>1 ← CZ</b></td></tr>
+  <tr><td>07-04</td><td class="n">7</td></tr>
+  <tr><td>07-05</td><td class="n">19</td></tr>
+  <tr><td>07-06 (partial)</td><td class="n">11</td></tr>
+</table></div>
+<p>8–19 pools per day, one assembly line. CZ's template — "74% to deployer → lock 70% in 51s → wash-pump" — is this line's <b>standard operating procedure</b>, not something CZ-specific.</p>
+<blockquote class="correction"><span class="clabel">⚠ CORRECTION (kept for honesty)</span><br>An earlier version treated the <code>…4444</code> suffix as a fingerprint of one operator. Overreach: ~60% of new BSC memecoins carry it — it's the launch tool's default vanity pattern, proving "same tool", not "same crew". What actually ties these 42 tokens together is <b>the same deployer + the same funding source</b>, not the suffix.</blockquote>
+<h3>Upstream = four.meme (launchpad) + a Binance-fed "BNB faucet" — not CZ's mastermind</h3>
+<p><b>① The launchpad is four.meme</b> — a public BSC token launchpad (bonding curve, pump.fun-style). Anyone can pay to launch; <code>…4444</code> is its default vanity suffix. four.meme sells shovels; it doesn't run your pump.</p>
+<p><b>② The funding upstream is a "BNB faucet" <code>0xe2fc…</code>.</b> Tracing its full money flow:</p>
+<ul>
+  <li><b>In:</b> <b>141,862 BNB (≈$82M) almost entirely from one labeled Binance hot wallet</b>; non-CEX inflow totals 0.03 BNB (dust). <span class="tag v">✅</span></li>
+  <li><b>Out:</b> <b>138,100 BNB fanned out one-way to 63,602 distinct addresses</b>. <span class="tag v">✅</span></li>
+  <li><b>Profits do not flow back</b> — it is not a profit treasury; it is a distribution faucet feeding tens of thousands of addresses. <span class="tag v">✅</span></li>
+  <li>It is shared funding infrastructure (a service/faucet), not one operator's wallet farm — pumping one pool doesn't take 60K wallets. <span class="tag i">🔶</span></li>
+  <li>Whether it is a Binance-affiliated batch-withdrawal channel or a third-party OTC/payout service — <b>unknowable on-chain</b>. <span class="tag u">⛔</span></li>
+</ul>
+<p><b>③ Is it four.meme's official wallet? No — verifiably ruled out.</b> Four tests against four.meme's contracts (<code>TokenManager2 0x5c952063…762b</code>, v1 <code>0xEC4549…bFbC</code>):</p>
+<div class="tablewrap"><table>
+  <tr><th>Test</th><th>Result</th><th>Meaning</th></tr>
+  <tr><td>BNB transfers with four.meme contracts</td><td class="n"><b>0</b></td><td>doesn't fund the contracts, doesn't collect fees → not four.meme's treasury/ops wallet</td></tr>
+  <tr><td>Ever a four.meme <code>creator</code></td><td class="n"><b>0</b></td><td>never launched a token itself</td></tr>
+  <tr><td>Ever a four.meme relayer (<code>tx_from</code>)</td><td class="n"><b>0</b></td><td>never relayed launches</td></tr>
+  <tr><td>Downstream addresses that are four.meme creators</td><td class="n"><b>93 / 34,992 ≈ 0.27%</b> (2.5-week window)</td><td>a generic BNB hub — not even a "four.meme faucet"</td></tr>
+</table></div>
+<p>Meanwhile: <code>0xe2fc</code> itself carries no exchange label, but ~100% of its sampled inflow comes from the labeled Binance hot wallet <code>0x8894E0A0…</code>; and it did send <b>4 BNB transfers directly to CZ's deployer</b> — so it is on CZ's funding path, but as one of tens of thousands of downstream recipients.</p>
+<blockquote class="correction"><span class="clabel">⚠ MAJOR CORRECTION (kept for honesty)</span><br>An earlier version claimed "a $51M operator running a 5,936-token network". Overreach. Accurate version: <b>four.meme (launchpad) + <code>0xe2fc</code> (Binance-fed faucet) are public upstream infrastructure shared by a large population of independent deployers.</b> CZ's operator merely drew funding from this plumbing and pumped its own pick. The genuinely private, coordinated scope is: <b>CZ's deployer + the 70% cold wallet + the wash-trading fleet.</b></blockquote>
+<h3>How the pump was executed: an "executor / inventory" market-making fleet <span class="tag v">✅</span></h3>
+<ul>
+  <li>The <b>support wallet <code>0xf70da978</code></b> (net buy +$6.56M) <b>never holds CZ</b>: everything it buys is routed straight to <b>inventory wallets</b> — <code>0xb92fe925</code> handled <b>256M</b>, <code>0xc2eff1f1</code> 71M, <code>0x8f10b468</code> 44M…</li>
+  <li>The leaderboard "winners" (<code>0xb71490c</code> sold $442K; the <code>0x4337…</code> family $100K+ each) <b>received zero CZ transfers</b> — they are sell executors, unloading inventory routed from elsewhere, holding nothing themselves.</li>
+  <li>★ <b>Verified: every wallet above (executors + inventory) holds 0 CZ today.</b> They churned chips through the pool — printing ~$110M of fake volume and marking the price up — and kept none.</li>
+</ul>
+<p>So "top 15 wallets extracted $2.1M" is <b>executor throughput, not their profit</b>. The real proceeds flow back, in BNB, to the CZ operator's own collection wallets — <b>not</b> to the upstream faucet <code>0xe2fc</code> (verified: profits do not return there). Locating the operator's collection wallets is left as a follow-up investigation.</p>
+<blockquote>★ <b>An important revision this implies:</b> since the MM fleet retains zero inventory, the ~29% external float is essentially <b>real retail hands</b> — not "mostly bots". Retail's true exposure to the 70% guillotine is ≈ full, undiscounted.</blockquote>
+
+<h2>8. Volume autopsy: $110M of volume on $860K of liquidity <span class="tag v">✅</span> + <span class="tag i">🔶</span></h2>
+<div class="tablewrap"><table>
+  <tr><th>Date</th><th>DEX volume</th><th>Trades</th><th>Unique addresses</th></tr>
+  <tr><td>07-03 (launch)</td><td class="n">$0.50M</td><td class="n">4,306</td><td class="n">762</td></tr>
+  <tr><td>07-04</td><td class="n">$21.4M</td><td class="n">77,613</td><td class="n">4,176</td></tr>
+  <tr><td>07-05 (peak)</td><td class="n"><b>$79.0M</b></td><td class="n"><b>287,705</b></td><td class="n">14,290</td></tr>
+  <tr><td>07-06 (partial)</td><td class="n">$11.5M</td><td class="n">52,891</td><td class="n">4,050</td></tr>
+</table></div>
+<ul>
+  <li>Peak day: <b>$79M volume ÷ $860K liquidity ≈ 91× daily turnover</b>. That ratio does not occur in organic trading.</li>
+  <li>Daily buys ≈ sells, near-perfect symmetry — volume churning in place. The price was <b>marked</b>, not bought, upward.</li>
+</ul>
+<p><b>The wash/MM fleet (by signing address <code>tx_from</code>):</b> <span class="tag v">✅ data</span> → <span class="tag i">🔶 behavioral call</span></p>
+<div class="tablewrap"><table>
+  <tr><th>Address</th><th>Trades (3d)</th><th>Buy USD</th><th>Sell USD</th><th>Net ratio</th><th>Profile</th></tr>
+  <tr><td class="n">0x9999b0cd…0515</td><td class="n"><b>61,151</b></td><td class="n">$4.99M</td><td class="n">$5.08M</td><td class="n">0.9%</td><td>🤖 pure wash (net ≈ 0)</td></tr>
+  <tr><td class="n">0xf70da978…dbef</td><td class="n">26,582</td><td class="n">$6.60M</td><td class="n">$0.04M</td><td class="n">98.7%</td><td>🟢 one-sided support (+$6.56M)</td></tr>
+  <tr><td class="n">0x40663e99… / 0x12af762e… / 0x0b92fcba… / 0x963353c2… etc.</td><td class="n">100s–1000s</td><td class="n">≈</td><td class="n">≈</td><td class="n">&lt;5%</td><td>🤖 wash (net ≈ 0)</td></tr>
+  <tr><td>Multiple one-sided sellers</td><td class="n">—</td><td class="n">~$0</td><td class="n">$0.4M–$10M</td><td class="n">100%</td><td>🔻 continuous distribution</td></tr>
+</table></div>
+<ul>
+  <li><code>0x9999b0cd…</code>: <b>61K trades in 3 days</b>, ~$5M each way, net ≈ 0 — one wallet cannot "organically" do this. Textbook wash trading.</li>
+  <li><code>0xf70da978…</code>: one-sided net buy of <b>+$6.56M</b>, almost never sells — the classic price-support wallet.</li>
+  <li>Wash volume to inflate + support orders to hold the mark + drip distribution — a coordinated MM/wash operation.</li>
+</ul>
+<blockquote>The pretty "$50M+ 24h volume" number on aggregators is <b>overwhelmingly manufactured and does not represent real demand.</b></blockquote>
+
+<h2>9. Evidence grades &amp; black-box disclosure</h2>
+<p><span class="tag v">✅ VERIFIED (on-chain, tamper-proof)</span> — issuance structure; 74% to deployer; 70% locked in the cold wallet with zero outflow; deployer + 4 EOAs selling into the pool; daily volume/trade counts/liquidity; wash symmetry; live supply map (70% / 0.9% / 29%); daily VWAP (260×); insider proceeds ~$15K; initial liquidity 17.64 BNB (≈$10K); the deployer minting 42 <code>…4444</code> tokens in 6 days on four.meme; the faucet <code>0xe2fc</code> receiving ~142K BNB (≈$82M) from Binance and fanning out to 63,602 addresses with no profit backflow; the MM fleet (executors + inventory) all holding 0 CZ; ~11.74M CZ (1.2%) flowing into MEXC.</p>
+<p><span class="tag i">🔶 INFERRED (high confidence, behavioral)</span> — "wash / MM / same operation" inferred from single-address high frequency + net ≈ 0 + one-sided support patterns; "CZ operator = deployer + genesis EOAs + cold wallet + wash fleet + <code>0x4337…</code> distribution family" from address linkage and money flow (coordination, not identity); the upstream faucet classed as public infrastructure, not part of the operator; <code>…4444</code> treated as tool default, not crew evidence.</p>
+<p><span class="tag u">⛔ UNKNOWABLE (never visible on-chain)</span> — whether those address clusters are one person or a team (linkage proves coordination, not identity); whether <code>0xe2fc</code> is a Binance-affiliated withdrawal channel or a third-party payout service; everything inside centralized exchanges (order books, real holders, real sell pressure); and whether/when the 70% cold wallet will dump — there is no on-chain lock; it is entirely at the operator's discretion.</p>
+<blockquote>⚠ <b>The CEX black box has opened a crack:</b> CZ has flowed into <b>MEXC</b> (~11.74M, ≈1.2% of supply) and a little into LBank. Part of the trading has moved off-chain where DEX data cannot see it. The "fully transparent, DEX-only" assumption now has a (still small) hole.</blockquote>
+
+<h2>10. Practical read-out</h2>
+<p>This structure does not predict price — short-term, sentiment and the MM fleet can keep pushing. What it determines is <b>the shape of the risk</b>:</p>
+<ul>
+  <li><b>The guillotine overhead:</b> <code>0x28816c4c…29307</code> (70%). Watch it. Any outflow — to the pool, to a CEX, or split into fresh wallets — is the highest-priority exit signal.</li>
+  <li><b>Discount the volume:</b> most of the "$50M/day" is wash. Pool depth is ~$860K — a shallow pool moves violently both ways.</li>
+  <li><b>Don't read "insiders already cashed out" as a positive:</b> they invested ~nothing and captured ~nothing of the pump — <b>the big bag (700M / ~$28.5M) is 100% un-monetized and still overhead.</b> The pressure is ahead, not behind.</li>
+  <li><b>Contract safety ≠ project safety:</b> renounced / 0 tax / LP burned are all true — and irrelevant to concentration, free-chip economics, and manufactured volume. Scanners don't catch what actually kills you here.</li>
+</ul>
+<p>All four signals (cold-wallet movement, volume authenticity, deployer distribution, fleet activity) are automated as 24/7 monitoring with Telegram alerts — see the <a href="https://github.com/minner-fun/onchain-token-monitor-for-cz">open-source repo</a> and the <a href="https://cz.minner.fun/">live dashboard</a>.</p>
+
+<div class="hire">
+  <div style="font-size:16px;font-weight:700;margin-bottom:6px">Need this level of clarity on a token you care about?</div>
+  <p class="note" style="margin:6px 0 12px">I produce evidence-graded forensic reports like this one — who controls the supply, whether the volume is real, where the guillotine hangs — plus 24/7 monitoring with Telegram alerts. Every claim verifiable, every query reproducible.</p>
+  <a class="cta hot" href="services.html">🔍 Forensics &amp; monitoring services — from $200</a>
+  <a class="cta" href="https://cz.minner.fun/">📊 Live dashboard (this token)</a>
+</div>
+
+<h2>Appendix: key addresses (full, verify everything yourself)</h2>
+<div class="tablewrap"><table>
+  <tr><th>Role</th><th>Address</th></tr>
+  <tr><td>Token contract (CZ, factory product #3)</td><td class="n">0x7a848a5a8169aa6a2f603d056a749f924f504444</td></tr>
+  <tr><td>Deployer (42 tokens in 6 days, four.meme)</td><td class="n">0x1bff8f0ade179dfa1beddb54fa5d7d6dc814191a</td></tr>
+  <tr><td>🚰 BNB faucet (Binance-fed, 63K+ recipients, public upstream — not the mastermind)</td><td class="n">0xe2fc31f816a9b94326492132018c3aecc4a93ae1</td></tr>
+  <tr><td>🔴 70% cold wallet (guillotine)</td><td class="n">0x28816c4c4792467390c90e5b426f198570e29307</td></tr>
+  <tr><td>Genesis intermediary</td><td class="n">0x757eba15a64468e6535532fcf093cef90e226f85</td></tr>
+  <tr><td>Launch contract (four.meme TokenManager2)</td><td class="n">0x5c952063c7fc8610ffdb798152d69f0b9550762b</td></tr>
+  <tr><td>PancakeSwap main pool</td><td class="n">0xd55fa2c5e63ecac3a158ca3fed4c8c2185ed45b2</td></tr>
+  <tr><td>Main wash wallet</td><td class="n">0x9999b0cdd35d7f3b281ba02efc0d228486940515</td></tr>
+  <tr><td>Main support wallet</td><td class="n">0xf70da97812cb96acdf810712aa562db8dfa3dbef</td></tr>
+  <tr><td>Leaderboard #1 "winner" (bought $0)</td><td class="n">0xb71490c36646015ab0317fcda1554f255ca4adba</td></tr>
+  <tr><td>Distribution family (same prefix, ≥8 wallets)</td><td class="n">0x4337… (e.g. 0x4337020f43d3d7d2f5e4160397efea49aefa5e7d)</td></tr>
+</table></div>
+<p class="note">Data sources: BSC on-chain (Dune: <code>erc20_bnb.evt_transfer</code>, <code>dex.trades</code>, <code>bnb.transactions</code>, <code>prices.usd</code>) · DexScreener · GoPlus. All queries reproducible.</p>
+
+<footer>
+  <div>
+    <a class="cta" href="index.html">📊 Live dashboard</a>
+    <a class="cta" href="services.html">🔍 Hire me — forensics &amp; monitoring</a>
+    <a class="cta" href="https://github.com/minner-fun/onchain-token-monitor-for-cz">💻 Source / check.py / factory.py</a>
+    <a class="cta" href="https://github.com/minner-fun/onchain-token-monitor-for-cz/blob/main/docs/%E6%8A%A5%E5%91%8A-CZ-The-Final-Form-Bull.md">🇨🇳 中文原版报告</a>
+  </div>
+  <p style="margin-top:12px">This report describes on-chain behavior and timelines for research and risk-monitoring purposes. It is not a legal characterization of any party and not investment advice.</p>
+</footer>
+
+</div>
+</body>
+</html>

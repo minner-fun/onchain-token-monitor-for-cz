@@ -135,8 +135,10 @@ BSC 链上(Dune:`erc20_bnb.evt_transfer`、`dex.trades`)· DexScreener · GoPlus
 
 本仓库只陈述链上行为与时间线,用于研究与风险监控演示。**不构成对任何主体的法律定性,也不构成投资建议。** 中心化交易所内部、地址背后的真实身份、以及冷钱包未来是否砸盘,均为链上不可知项。
 
-## 关于
+## 关于 / Hire me
 
-需要对某个代币做「谁在控盘」的取证报告,或给你的代币 / 金库做 24/7 监控?
+需要对某个代币做「谁在控盘」的取证报告,或给你的代币 / 金库做 24/7 监控?**现已开放委托:**
 
-- Portfolio: [minner.fun](https://minner.fun/) · GitHub: [github.com/minner-fun](https://github.com/minner-fun)
+- 🔍 **[服务与定价 · Services & Pricing](https://cz.minner.fun/services.html)** — 快速体检 $200 / 完整取证 $500 起 / 24/7 监控 $250/月
+- 🇬🇧 [Full CZ report in English](https://cz.minner.fun/report-en.html)(作品集样品)
+- Portfolio: [minner.fun](https://minner.fun/) · GitHub: [github.com/minner-fun](https://github.com/minner-fun) · 询价: xiaoqideguge@gmail.com
